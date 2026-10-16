@@ -1,0 +1,39 @@
+name: media-prowlarr
+
+services:
+  prowlarr:
+    image: ${PROWLARR_IMAGE:?Set the reviewed LinuxServer immutable image digest}
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      PUID: "1000"
+      PGID: "2000"
+      UMASK: "027"
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - target: 9696
+        published: "9696"
+        host_ip: ${PROWLARR_BIND_ADDRESS:?Set the private VM LAN IPv4}
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /srv/media-server/appdata/prowlarr
+        target: /config
+        bind:
+          create_host_path: false
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, --output, /dev/null, http://127.0.0.1:9696/ping]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # s6 initializes as root; Prowlarr runs as PUID/PGID.
+    # Indexer manager only: no downloads/media bind, Docker socket or devices.
+    # Native first-run authentication setup must be completed before adding sources.

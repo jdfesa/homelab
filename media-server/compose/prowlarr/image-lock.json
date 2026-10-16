@@ -1,0 +1,11 @@
+{
+  "reviewed_on": "2026-10-16",
+  "release": "2.6.5.5623",
+  "release_source": "https://github.com/Prowlarr/Prowlarr/releases/tag/v2.6.5.5623",
+  "image_source": "https://github.com/linuxserver/docker-prowlarr",
+  "image": "lscr.io/linuxserver/prowlarr@sha256:f9151e5bc1025c6d0a630d503210cdcb6bb55a7cc098562609d96a408d838902",
+  "platform": "linux/amd64",
+  "image_version_label": "2.6.5.5623-ls163",
+  "image_revision": "3c93802a8c7e96bea9ef084d13b13456a84b7eee",
+  "automatic_updates": false
+}
