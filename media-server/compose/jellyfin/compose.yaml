@@ -1,0 +1,44 @@
+name: media-jellyfin
+
+services:
+  jellyfin:
+    image: ${JELLYFIN_IMAGE:?Set the official image pinned to its reviewed digest}
+    user: "1000:2000"
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    environment:
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - target: 8096
+        published: "8096"
+        host_ip: ${JELLYFIN_BIND_ADDRESS:?Set the private VM LAN IPv4}
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /srv/media-server/appdata/jellyfin/config
+        target: /config
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /srv/media-server/appdata/jellyfin/cache
+        target: /cache
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /data/media
+        target: /media
+        read_only: true
+        bind:
+          create_host_path: false
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # The official image supplies the /health HTTP healthcheck.
+    # No Docker socket, hardware passthrough, discovery/DLNA or WAN mapping.

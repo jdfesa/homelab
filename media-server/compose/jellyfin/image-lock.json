@@ -1,0 +1,10 @@
+{
+  "reviewed_on": "2026-10-16",
+  "release": "12.2",
+  "release_source": "https://github.com/jellyfin/jellyfin/releases/tag/v12.2",
+  "image": "jellyfin/jellyfin:12.2@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+  "repository_digest": "jellyfin/jellyfin@sha256:357724bf0ae27a672c7cbaa899db2d9abeb13dbd8657ccce750258a4c059d037",
+  "platform": "linux/amd64",
+  "official_image_version_label": "12.2",
+  "automatic_updates": false
+}
