@@ -1,0 +1,12 @@
+{
+  "reviewed_on": "2026-10-16",
+  "release": "5.2.4",
+  "release_source": "https://github.com/qbittorrent/qBittorrent/releases/tag/release-5.2.4",
+  "image_source": "https://github.com/linuxserver/docker-qbittorrent",
+  "image": "lscr.io/linuxserver/qbittorrent@sha256:97333cc1ccf903e0bbcd8eb67e3332e4970e9c1ecabe145e499e9c0847ebcaed",
+  "repository_digest": "lscr.io/linuxserver/qbittorrent@sha256:97333cc1ccf903e0bbcd8eb67e3332e4970e9c1ecabe145e499e9c0847ebcaed",
+  "platform": "linux/amd64",
+  "image_version_label": "5.2.4_v2.0.15-ls480",
+  "image_revision": "7168cb6b17da0e4fb49c577eb1831f1e13d4c12c",
+  "automatic_updates": false
+}
