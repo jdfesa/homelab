@@ -1,0 +1,14 @@
+# Guardas adicionales: el runtime debe estar fuera de este módulo.
+.local/
+appdata/
+data/
+downloads/
+cache/
+secrets/
+backups/
+exports/
+
+# Estado específico del cliente; las DB/SQLite se excluyen desde la raíz.
+BT_backup/
+*.torrent
+*.fastresume
