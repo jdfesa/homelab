@@ -1,0 +1,45 @@
+name: media-radarr
+
+services:
+  radarr:
+    image: ${RADARR_IMAGE:?Set the reviewed LinuxServer immutable image digest}
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      PUID: "1000"
+      PGID: "2000"
+      UMASK: "002"
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - target: 7878
+        published: "7878"
+        host_ip: ${RADARR_BIND_ADDRESS:?Set the private VM LAN IPv4}
+        protocol: tcp
+    volumes:
+      - type: bind
+        source: /srv/media-server/appdata/radarr
+        target: /config
+        bind:
+          create_host_path: false
+      - type: bind
+        source: /data
+        target: /data
+        bind:
+          create_host_path: false
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, --output, /dev/null, http://127.0.0.1:7878/ping]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # s6 initializes as root; Radarr runs as PUID/PGID.
+    # ONE common /data bind preserves hardlinks across downloads/media.
+    # No split /movies + /downloads mounts, Docker socket or devices.
+    # Native authentication setup remains a user action before integrations or movies.
