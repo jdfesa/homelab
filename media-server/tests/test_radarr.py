@@ -102,6 +102,72 @@ class RadarrContract(unittest.TestCase):
         self.assertEqual(lock['image'], DEPLOY.IMAGE)
         self.assertEqual(lock['image_version_label'], DEPLOY.IMAGE_VERSION)
 
+    def test_saved_hd_policy_has_one_equal_group_including_remux(self):
+        policy = json.loads((MODULE / 'docs/radarr-profile-policy.json').read_text())
+        profile = policy['profile']
+        expected = {'HDTV-720p', 'WEBDL-720p', 'WEBRip-720p', 'Bluray-720p',
+                    'HDTV-1080p', 'WEBDL-1080p', 'WEBRip-1080p', 'Bluray-1080p', 'Remux-1080p'}
+        self.assertEqual(len(profile['quality_groups']), 1)
+        group = profile['quality_groups'][0]
+        self.assertEqual(group['name'], '720p + 1080p (equal)')
+        self.assertEqual(set(group['qualities']), expected)
+        self.assertEqual(len(group['qualities']), len(expected))
+        self.assertFalse(profile['allow_unlisted_qualities'])
+        self.assertFalse(profile['upgrade_allowed'])
+        self.assertFalse(policy['quality_size_limits_changed'])
+        state = json.loads((MODULE / 'vm-config.json').read_text())
+        radarr = state['applications']['radarr']
+        self.assertEqual(radarr['selected_quality_profile'], profile['name'])
+        self.assertEqual(radarr['allowed_resolutions'], [720, 1080])
+        self.assertEqual(radarr['resolution_priority'], 'equal')
+        self.assertTrue(radarr['remux_1080p_allowed'])
+
+    def test_language_policy_prefers_original_and_rejects_other_only(self):
+        policy = json.loads((MODULE / 'docs/radarr-profile-policy.json').read_text())
+        profile = policy['profile']
+        self.assertEqual(profile['language'], 'Any')
+        scores = profile['custom_format_scores']
+        self.assertEqual(scores, {'Prefer original audio': 100, 'English fallback': 10})
+        self.assertEqual(profile['minimum_custom_format_score'], 1)
+        definitions = {cf['name']: cf for cf in policy['custom_formats']}
+        self.assertEqual(set(definitions), set(scores))
+        for name, language in [('Prefer original audio', -2), ('English fallback', 1)]:
+            cf = definitions[name]
+            self.assertFalse(cf['includeCustomFormatWhenRenaming'])
+            self.assertEqual(len(cf['specifications']), 1)
+            spec = cf['specifications'][0]
+            self.assertEqual(spec['implementation'], 'LanguageSpecification')
+            self.assertFalse(spec['negate'])
+            self.assertFalse(spec['required'])
+            self.assertEqual(spec['fields'], {'value': language, 'exceptLanguage': False})
+        # Policy arithmetic only; release-language parsing and actual audio remain E2E tests.
+        for original, english, expected_score, accepted in [
+                (False, False, 0, False), (False, True, 10, True),
+                (True, False, 100, True), (True, True, 110, True)]:
+            score = int(original) * scores['Prefer original audio'] + int(english) * scores['English fallback']
+            with self.subTest(original=original, english=english):
+                self.assertEqual(score, expected_score)
+                self.assertEqual(score >= profile['minimum_custom_format_score'], accepted)
+
+    def test_naming_and_real_capture_references_match_policy(self):
+        policy = json.loads((MODULE / 'docs/radarr-profile-policy.json').read_text())
+        naming = policy['naming']
+        self.assertTrue(naming['renameMovies'])
+        self.assertTrue(naming['replaceIllegalCharacters'])
+        self.assertEqual(naming['colonReplacementFormat'], 'smart')
+        self.assertEqual(naming['standardMovieFormat'], '{Movie Title} ({Release Year}) {Quality Full}')
+        self.assertEqual(naming['movieFolderFormat'], '{Movie Title} ({Release Year})')
+        guide = (MODULE / 'docs/radarr.md').read_text()
+        self.assertEqual(len(policy['screenshots']), 6)
+        for name in policy['screenshots']:
+            with self.subTest(screenshot=name):
+                self.assertIn('../images/' + name, guide)
+                self.assertTrue((MODULE / 'images' / name).read_bytes().startswith(b'\xff\xd8\xff'))
+        radarr = json.loads((MODULE / 'vm-config.json').read_text())['applications']['radarr']
+        self.assertTrue(radarr['copy_using_hardlinks'])
+        self.assertTrue(radarr['rename_movies_enabled'])
+        self.assertEqual(radarr['movie_policy_reference'], 'docs/radarr-profile-policy.json')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -76,11 +76,17 @@ class ProwlarrContract(unittest.TestCase):
         lock = json.loads((MODULE / 'compose/prowlarr/image-lock.json').read_text())
         self.assertEqual(lock['release'], DEPLOY.VERSION)
 
-    def test_user_confirmed_password_change_without_starting_download(self):
-        qbit = json.loads((MODULE / 'vm-config.json').read_text())['applications']['qbittorrent']
-        self.assertTrue(qbit['user_permanent_password_confirmed'])
-        self.assertTrue(qbit['user_confirmed_no_download_started'])
-        self.assertFalse(qbit['actual_download_verified'])
+    def test_reference_contains_saved_sources_and_native_authentication(self):
+        app = json.loads((MODULE / 'vm-config.json').read_text())['applications']['prowlarr']
+        self.assertEqual(app['authentication_method'], 'Forms')
+        self.assertEqual(app['authentication_required'], 'Enabled')
+        self.assertFalse(app['hdd_mounted'])
+        self.assertEqual(app['radarr_sync_level'], 'FullSync')
+        sources = {source['name']: source for source in app['indexers']}
+        self.assertEqual(set(sources), {'Knaben', 'The Pirate Bay'})
+        self.assertTrue(sources['Knaben']['prefer_magnet_url'])
+        self.assertEqual(sources['The Pirate Bay']['api_url'], 'apibay.org')
+        self.assertTrue(all(source['sync_profile'] == 'Standard' for source in sources.values()))
 
 
 if __name__ == '__main__':

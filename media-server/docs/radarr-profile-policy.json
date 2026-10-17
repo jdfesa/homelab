@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "verified_radarr_version": "6.4.4.10685",
+  "format": "declarative-policy-not-direct-api-payload",
+  "profile": {
+    "name": "HD - 720p/1080p",
+    "upgrade_allowed": false,
+    "quality_groups": [
+      {
+        "name": "720p + 1080p (equal)",
+        "qualities": [
+          "HDTV-720p",
+          "WEBDL-720p",
+          "WEBRip-720p",
+          "Bluray-720p",
+          "HDTV-1080p",
+          "WEBDL-1080p",
+          "WEBRip-1080p",
+          "Bluray-1080p",
+          "Remux-1080p"
+        ]
+      }
+    ],
+    "allow_unlisted_qualities": false,
+    "language": "Any",
+    "minimum_custom_format_score": 1,
+    "custom_format_scores": {
+      "Prefer original audio": 100,
+      "English fallback": 10
+    }
+  },
+  "custom_formats": [
+    {
+      "name": "Prefer original audio",
+      "includeCustomFormatWhenRenaming": false,
+      "specifications": [
+        {
+          "name": "Original language",
+          "implementation": "LanguageSpecification",
+          "negate": false,
+          "required": false,
+          "fields": {
+            "value": -2,
+            "exceptLanguage": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "English fallback",
+      "includeCustomFormatWhenRenaming": false,
+      "specifications": [
+        {
+          "name": "English language",
+          "implementation": "LanguageSpecification",
+          "negate": false,
+          "required": false,
+          "fields": {
+            "value": 1,
+            "exceptLanguage": false
+          }
+        }
+      ]
+    }
+  ],
+  "naming": {
+    "renameMovies": true,
+    "replaceIllegalCharacters": true,
+    "colonReplacementFormat": "smart",
+    "standardMovieFormat": "{Movie Title} ({Release Year}) {Quality Full}",
+    "movieFolderFormat": "{Movie Title} ({Release Year})"
+  },
+  "quality_size_limits_changed": false,
+  "screenshots": [
+    "radarr-hd-720p-1080p-equal-saved.jpg",
+    "radarr-language-profile-scores-saved.jpg",
+    "radarr-language-custom-formats-saved.jpg",
+    "radarr-language-original-condition-saved.jpg",
+    "radarr-language-english-condition-saved.jpg",
+    "radarr-movie-naming-saved.jpg"
+  ]
+}

@@ -1,9 +1,0 @@
-{
-  "kind": "privacy-redacted visual reference; not pixel-exact service evidence",
-  "tool": "image_gen (built-in)",
-  "prompt": "Use case: precise-object-edit. Asset type: privacy-redacted documentation screenshot, NOT a UI redesign. The referenced screenshot is the sole edit target. Edit ONLY three text regions inside inputs: (1) completely cover the API Key input text, including every visible prefix/suffix character and the entire pixelated area, with one uniform solid opaque black rectangle, leaving the input border and API Key label intact; (2) completely cover the host/address substring in the Prowlarr Server input with a solid opaque black rectangle, preserving the visible http:// prefix and :9696 suffix; (3) do the same for the host/address substring in the Radarr Server input, preserving http:// and :7878. No blur, no pixelation, no transparency, no surviving secret fragments, no replacement/fabricated key. Keep EVERY other pixel/element as unchanged as possible: original dimensions/framing, all labels and helper text, Name Radarr, Full Sync selected, empty Tags, all borders and buttons Test/Cancel/Save, dark colors and layout. Do not add a success tick or imply Save has happened. Do not reconstruct any obscured value. Return the same screenshot with these three solid privacy redactions only.",
-  "source": "User-provided partially pixelated attachment; original not archived in the repository",
-  "output": "prowlarr-radarr-application-reviewed-redacted.png",
-  "privacy_review": "API Key fully covered; hosts fully covered; ports 9696/7878 retained; no key fragments visible",
-  "setup_evidence": "Form completed; Test success reported by user. Save and indexer synchronization not confirmed."
-}
