@@ -28,6 +28,7 @@
 - Conservar capturas reales útiles de la configuración final o de un paso necesario para reproducirla; no publicar cada pantalla intermedia.
 - No presentar imágenes generadas/editadas como prueba de una configuración real.
 - Los diagramas deben explicar dónde empieza el usuario y cómo circula el trabajo, diferenciando lo comprobado de lo pendiente, sin nombres de adquisiciones personales.
+- Mantener el Mermaid raíz como mapa sencillo del host, VM/LXC y grupos de servicios instalados; sin puertos, rutas ni reglas internas. Los diagramas de cada módulo detallan su flujo, scripts y límites. Actualizar la raíz si cambia el inventario y el módulo si cambia su operación, sin trasladar la complejidad interna al índice global.
 
 ## Seguridad y validación
 

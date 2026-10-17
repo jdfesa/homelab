@@ -16,65 +16,40 @@ This is the lab index, not a combined installation guide. Each VM or LXC owns it
 | Connected storage | 512 GB Micron NVMe + 2 × 2 TB WD HDDs; device ownership is recorded in the host inventory |
 | Network | Realtek Fast Ethernet, 100 Mbps full-duplex |
 | Running guests | DSM and `media-server`; see the shared guest inventory for resource allocations |
-| Containers | No LXC guests observed |
+| LXC guests | None observed; Docker containers run inside the media-server VM |
 
 ## Lab Map
 
-This map covers the two permanent workloads selected by the owner. It is not a list of everything suggested in the roadmap.
+Deployment overview: one physical host, its permanent VMs and their service groups. Arrows mean **contains / runs**, not application traffic. Internal workflows belong to each module's diagrams; roadmap ideas are not shown as installed.
 
 ```mermaid
 flowchart TB
-    subgraph proxmoxHost["Proxmox VE - one physical host"]
-        subgraph dsmVm["VM 100 - DSM - existing"]
-            dsm["DSM: internal services not yet inventoried"]
-        end
-        subgraph mediaVm["VM 102 - media-server - Debian"]
-            prowlarr["Prowlarr :9696 - sources configured"]
-            radarr["Radarr :7878 - profiles and hardlink import verified"]
-            qbittorrent["qBittorrent :8080 - downloader configured"]
-            jellyfin["Jellyfin :8096 - tablet playback verified"]
-            sonarr["Sonarr :8989 - existing download hardlink import verified"]
-            bazarr["Bazarr :6767 - EN / ES subtitles"]
-            samba["Samba :445 - Movies / TV library shares"]
-            prowlarr -->|"Full Sync verified"| radarr
-            radarr -->|"Movie acquisition verified"| qbittorrent
-            prowlarr -->|"Full Sync verified"| sonarr
-            sonarr -->|"Completed handling ON; new acquisition pending"| qbittorrent
-            radarr -->|"Managed movie metadata"| bazarr
-            sonarr -->|"Managed series metadata"| bazarr
-        end
-        dsmDisk["DSM HDD - separate ownership; do not touch"]
-        mediaDisk["Media HDD - /data/downloads and /data/media"]
-        dsm --- dsmDisk
-        qbittorrent -->|"Downloads"| mediaDisk
-        radarr -->|"Library import by hardlink"| mediaDisk
-        sonarr -->|"Existing download import by hardlink verified"| mediaDisk
-        samba -->|"Copy existing media into library"| mediaDisk
-        mediaDisk -->|"Existing subtitle inventory"| bazarr
-        bazarr -->|"Missing EN/ES downloads; provider quotas apply"| mediaDisk
-        bazarr -->|"Episode refresh after subtitle changes verified"| jellyfin
-        mediaDisk -->|"Library mounted read-only"| jellyfin
-    end
-    classDef configured fill:#173b2b,stroke:#3fb950,color:#ffffff
-    classDef partial fill:#483916,stroke:#d29922,color:#ffffff
-    classDef planned fill:#30363d,stroke:#8b949e,color:#ffffff,stroke-dasharray:5 5
-    classDef storage fill:#15354c,stroke:#58a6ff,color:#ffffff
-    class prowlarr,qbittorrent,radarr,samba configured
-    class dsm,jellyfin,bazarr partial
-    class sonarr partial
-    class dsmDisk,mediaDisk storage
+    proxmoxHost["Proxmox VE - one physical host"]
+    dsmVm["VM 100 - DSM"]
+    mediaVm["VM 102 - media-server - Debian"]
+    dsmScope["NAS: internal inventory pending"]
+    mediaContainers["`Docker Compose
+Jellyfin, qBittorrent, Prowlarr
+Radarr, Sonarr, Bazarr`"]
+    mediaNative["`Native services
+Samba and scheduled maintenance`"]
+    proxmoxHost --> dsmVm
+    proxmoxHost --> mediaVm
+    dsmVm --> dsmScope
+    mediaVm --> mediaContainers
+    mediaVm --> mediaNative
 ```
 
-**Legend:** green = configured component/connection, not end-to-end acceptance; amber = existing workload with remaining documentation/configuration/acceptance; gray = future; blue = separate storage. Dashed arrows are planned or untested real workflows. Radarr, not qBittorrent or Jellyfin, imports movies into the library; see the [detailed media workflow](media-server/README.md#workflow). Bazarr inventories EN/ES through Radarr/Sonarr, searches missing subtitles via OpenSubtitles.com and notifies Jellyfin; automatic episode refresh is verified. Provider availability/quotas and unmanaged SMB collections remain limits.
+Open [DSM](dsm/README.md) for its inventory scope or [media-server](media-server/README.md#workflow) for acquisition, playback and maintenance flows. Ports, storage paths, script rules and validation limits stay inside their module, not in this overview.
 
 No LXC workload is configured/documented yet. A legacy test guest is intentionally omitted from this map and module list; its historical resource record remains in the shared inventory. No guest was deleted or changed.
 
 ## Workload Modules
 
-| Module | Purpose | Verified scope |
+| Module | Deployment | Purpose |
 | --- | --- | --- |
-| [dsm](dsm/README.md) | Existing NAS VM; preserve its data | VM resources observed; internal version, packages/shares and backup acceptance not inventoried |
-| [media-server](media-server/README.md) | Personal movie/TV automation and playback | Six Compose services plus native Samba; Sonarr adoption/hardlinks and episode monitor verified; new series acquisition pending; movie acquisition/hardlink import and tablet playback verified; Bazarr EN/ES automatic searches and episode refresh active |
+| [dsm](dsm/README.md) | VM 100; existing NAS | File storage; internal services and backup acceptance still need inventory |
+| [media-server](media-server/README.md) | VM 102; Debian, six Compose services, native Samba and scheduled maintenance | Movie/TV acquisition, organization, subtitles and playback; detailed status in the module |
 
 Read a module's README before running its scripts. DSM currently has an honest inventory/remaining-work entry, not an invented installer. No empty LXC or experimental-guest modules are created merely to fill a template. Host-wide facts belong in shared docs; workload procedures have one source of truth inside their module. Update this map/table when a workload is added, removed or changes verified status; update service-level details in its own module.
 

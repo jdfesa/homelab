@@ -3,6 +3,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -125,12 +126,16 @@ class PublicationTests(unittest.TestCase):
         readme = (ROOT / "README.md").read_text()
         diagram = readme.split("```mermaid\n", 1)[1].split("```", 1)[0]
         for label in ["Proxmox VE - one physical host", "VM 100 - DSM", "VM 102 - media-server",
-                      "Sonarr :8989", "new acquisition pending", "Samba :445",
-                      "Existing download import by hardlink verified"]:
+                      "Docker Compose", "Jellyfin", "qBittorrent", "Prowlarr", "Radarr", "Sonarr", "Bazarr",
+                      "Native services", "Samba and scheduled maintenance"]:
             self.assertIn(label, diagram)
         self.assertNotIn('Sonarr - planned, not deployed', diagram)
-        for excluded in ["WinXP", "Windows XP", "VM 101"]:
+        for excluded in ["WinXP", "Windows XP", "VM 101", "hardlink", "Full Sync", "/data/", "torrent-cleanup.py"]:
             self.assertNotIn(excluded, diagram)
+        self.assertNotRegex(diagram, r':\d{2,5}')
+        self.assertLessEqual(len(re.findall(r'^\s*[A-Za-z]\w*\[', diagram, re.MULTILINE)), 8)
+        self.assertLessEqual(diagram.count(' --> '), 6)
+        self.assertIn('media-server/README.md#workflow', readme)
         self.assertTrue((ROOT / "dsm/README.md").is_file())
 
 

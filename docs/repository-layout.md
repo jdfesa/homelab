@@ -1,6 +1,6 @@
 # Repository Layout
 
-**Status:** Workload ownership rules applied · **Updated:** 2026-10-15.
+**Status:** Workload ownership rules applied · **Updated:** 2026-10-17.
 
 ## Reference and Scope
 
@@ -55,6 +55,12 @@ Cada VM/LXC tiene su propio directorio. `media-server/` aplica esta estructura; 
 El módulo [DSM](../dsm/README.md) registra por ahora sólo lo observado y lo que falta; no inventa una instalación interna. El mapa principal sólo muestra DSM y media-server por decisión del usuario; no incluye la VM experimental ni un LXC no configurado.
 
 El README de una VM debe permitir a otra persona entender qué está comprobado, qué falta, qué scripts son destructivos y desde dónde se ejecutan. Un cambio específico se documenta en ese módulo; el índice global sólo necesita actualización cuando cambian ownership, recursos o navegación. No duplicar versiones, cronologías y pasos operativos en varios índices.
+
+### Diagram Levels
+
+El Mermaid del README raíz es un mapa de despliegue: host físico, VM/LXC y grupos de servicios incorporados. Las flechas indican qué ejecuta cada capa, no tráfico entre aplicaciones. No incluir puertos, rutas de archivos, condiciones de limpieza ni conexiones API internas.
+
+Cada módulo conserva los diagramas de su operación: entradas del usuario, servicios, almacenamiento y automatizaciones con su función y límites. Separar vistas de contenido y mantenimiento cuando ayude a leerlas; enlazar la receta canónica en lugar de repetirla. Distinguir flujo configurado de resultados realmente verificados. Los instaladores y ayudantes privados de una intervención no se dibujan como procesos periódicos.
 
 En runtime, `.env`, volúmenes y bases de datos quedan fuera de Git. Compose irá en `<workload>/compose/<service>/`, con `compose.yaml`, `.env.example` y guía/README de ese servicio; nada de manifests vacíos o una segunda copia en un `docker/` global. Ver [Stack Guide](stack-guide.md).
 
