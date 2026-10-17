@@ -1,0 +1,67 @@
+# Media library sharing; configured for this private LAN only.
+[global]
+    workgroup = WORKGROUP
+    server string = Media Server
+    server role = standalone server
+    security = user
+    passdb backend = tdbsam
+    map to guest = Never
+    restrict anonymous = 2
+    invalid users = root
+    unix password sync = no
+    pam password change = no
+    interfaces = 127.0.0.1/8 <LAN_ADDRESS_CIDR>
+    bind interfaces only = yes
+    hosts allow = 127.0.0.1 <LAN_NETWORK_CIDR>
+    hosts deny = ALL
+    smb ports = 445
+    disable netbios = yes
+    server min protocol = SMB3_00
+    server signing = mandatory
+    smb encrypt = required
+    server multi channel support = no
+    load printers = no
+    disable spoolss = yes
+    printcap name = /dev/null
+    usershare max shares = 0
+    usershare allow guests = no
+    log file = /var/log/samba/log.%I
+    max log size = 1024
+    logging = file
+    log level = 1
+
+[Movies]
+    path = /data/media/movies
+    browseable = yes
+    read only = no
+    guest ok = no
+    valid users = <SMB_USER>
+    force group = media
+    create mask = 0660
+    force create mode = 0660
+    directory mask = 2770
+    force directory mode = 2770
+    follow symlinks = no
+    wide links = no
+    vfs objects = fruit streams_xattr
+    fruit:metadata = stream
+    fruit:resource = file
+    fruit:time machine = no
+
+[TV]
+    path = /data/media/tv
+    browseable = yes
+    read only = no
+    guest ok = no
+    valid users = <SMB_USER>
+    force group = media
+    create mask = 0660
+    force create mode = 0660
+    directory mask = 2770
+    force directory mode = 2770
+    follow symlinks = no
+    wide links = no
+    vfs objects = fruit streams_xattr
+    fruit:metadata = stream
+    fruit:resource = file
+    fruit:time machine = no
