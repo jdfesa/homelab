@@ -1,26 +1,33 @@
 # Media Server Tests
 
-Local tests owned by this VM module. They check reference configuration, public links/privacy, shell syntax, pure storage guards and refusal without explicit `--apply`.
+Pruebas locales de contratos reproducibles: configuración, montajes, identidad, imágenes fijadas, enlaces de documentación, guardas y rechazo sin `--apply`. No dependen de una descarga concreta, una cola viva ni del historial del agente.
 
-From `media-server/`:
+Desde `media-server/`:
 
 ```sh
 python3 -m unittest discover -s tests -v
 ```
 
-Requirements: a Unix-like environment (Linux/macOS), Python 3 standard library and Bash. No root, SSH, Docker daemon, extra Python packages or RTK installation is needed. The tests never format disks or provision a server. They exclude ignored private/runtime directories from public-document scans.
+Desde la raíz del repo:
 
-- `test_media_server.py`: configuration, storage status, links, privacy, shell syntax and network-script refusal.
-- `test_media_storage_scripts.py`: pure identity/mount guards, destructive-script refusal and Python syntax.
-- `test_ssh_public_key.py`: public-key validation, preservation/idempotence, ownership guards and refusal without `--apply`; no SSH or real account changes.
-- `test_jellyfin.py`: pure deployment-contract tests for pinned official image, non-root identity, assigned LAN IPv4, NVMe appdata, read-only library and explicit `--apply`; no Docker or network access.
+```sh
+sh scripts/run-tests.sh
+```
 
-- `test_qbittorrent.py`: contrato puro de imagen inmutable, montajes mínimos, identidad, WebUI LAN, UPnP/auth inicial y guía canónica por servicio en `docs/`; sin despliegue ni HTTP.
+Requieren Python3 estándar y Bash; no root, SSH, Docker ni RTK instalado para ejecutar la suite. No formatean discos, despliegan servicios ni contactan la VM. En el entorno del agente, los comandos de shell se envuelven con RTK según AGENTS.md.
 
-- `test_qbittorrent_reset.py`:8 pruebas puras de recuperación WebUI: longitud/entrada, formato PBKDF2/QSettings de la versión fijada, sólo dos claves modificables, rechazo de estructura no esperada, login204/200legacy, digest coherente y rechazo sin `--apply`. No cambia credenciales ni inicia contenedores.
+| Archivo | Contrato |
+| --- | --- |
+| `test_media_server.py` | Referencia VM/almacenamiento, privacidad, links y shell |
+| `test_media_storage_scripts.py` | Identidad/montaje, rechazo destructivo y sintaxis Python |
+| `test_ssh_public_key.py` | Validación/preservación de clave, propietarios y rechazo sin apply |
+| `test_jellyfin.py` | Imagen oficial inmutable, UID/GID, LAN y biblioteca RO |
+| `test_samba.py` | Sólo Movies/TV, autenticación SMB3, allowlist LAN, permisos y guarda de montaje; no contacta el servidor |
+| `test_qbittorrent.py` | Montajes mínimos, WebUI/auth, capacidades verificadas separadas de límites y ausencia de inventarios temporales |
+| `test_qbittorrent_reset.py` | Entrada privada, formato PBKDF2, sólo dos claves modificables, login y rechazo de estado no esperado |
+| `test_prowlarr.py` | Config NVMe sin HDD, autenticación nativa y fuentes guardadas |
+| `test_radarr.py` | Bind común, imagen exacta, perfil HD equivalente, idiomas y renombrado |
+| `test_sonarr.py` | Imagen exacta, bind común, Forms nativo, perfil HD, conexiones y separación de aceptación pendiente |
+| `test_bazarr.py` | Imagen fijada, biblioteca sin downloads, LAN, bootstrap Forms privado y política bilingüe |
 
-- `test_prowlarr.py`: contrato puro de imagen/identidad/configNVMe/puertoLAN, rechazo de override de autenticación, bootstrap y documentación; confirmaciones de contraseña qBit y ninguna descarga manual.
-
-- `test_radarr.py`:10 pruebas locales del primer despliegue: digest exacto, identidad/mediaGID, único `/data` común sin mounts separados, puerto7878 RFC1918 asignado, autenticación nativa/actualizacionesDocker, rechazo sin `--apply` y documentación/lock coherentes. No inicia contenedores ni modifica medios.
-
-Actual mounts, service guards, reboots and application imports are separate acceptance tests documented in [Storage Guide](../docs/storage-guide.md) and [Roadmap](../ROADMAP.md). To run all repository suites, use the shared [test runner](../../scripts/README.md).
+La [validación real del flujo](../docs/validation.md) es independiente de estos tests; no se deduce de una suite local exitosa.

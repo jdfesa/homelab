@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import subprocess
+import struct
 import sys
 import unittest
 
@@ -83,12 +84,73 @@ class QbittorrentContract(unittest.TestCase):
             self.assertFalse((MODULE / 'compose' / service / 'service-guide.md').exists())
             self.assertIn('../../docs/' + service + '.md', (MODULE / 'compose' / service / 'README.md').read_text())
 
-    def test_completed_jellyfin_setup_does_not_claim_playback(self):
-        app = json.loads((MODULE / 'vm-config.json').read_text())['applications']['jellyfin']
-        self.assertTrue(app['startup_wizard_completed_verified'])
-        self.assertTrue(app['remote_access_enabled_confirmed_by_user'])
+    def test_verified_capabilities_do_not_claim_complete_automation(self):
+        state = json.loads((MODULE / 'vm-config.json').read_text())
+        app = state['applications']['jellyfin']
+        self.assertTrue(app['remote_access_enabled'])
         self.assertFalse(app['wan_publication_configured'])
-        self.assertFalse(app['playback_verified'])
+        self.assertEqual(app['libraries_confirmed_in_ui'], {'Shows': '/media/tv', 'Movies': '/media/movies'})
+        verified = state['validation']
+        for capability in ('movie_search_download_import_verified', 'application_hardlink_import_verified',
+                           'lan_tablet_playback_verified', 'embedded_subtitle_selection_verified'):
+            self.assertTrue(verified[capability])
+        for capability in ('series_pipeline_verified', 'backup_restore_verified'):
+            self.assertFalse(verified[capability])
+        self.assertTrue((MODULE / verified['guide']).is_file())
+
+    def test_public_reference_is_configuration_not_download_inventory(self):
+        state = json.loads((MODULE / 'vm-config.json').read_text())
+        self.assertEqual(state['schema_version'], 2)
+        forbidden = {'infohash', 'title', 'seeders', 'downloaded_bytes', 'queue_total_records',
+                     'request_examples', 'series_acquisition', 'sintel_test', 'first_movie_test'}
+        def check_keys(value):
+            if isinstance(value, dict):
+                self.assertFalse(forbidden.intersection(value))
+                for child in value.values():
+                    check_keys(child)
+            elif isinstance(value, list):
+                for child in value:
+                    check_keys(child)
+        check_keys(state)
+        self.assertIn('tmp/', (MODULE.parent / '.gitignore').read_text().splitlines())
+        graph = (MODULE / 'README.md').read_text().split('```mermaid\n', 1)[1].split('```', 1)[0]
+        for line in graph.splitlines():
+            self.assertNotRegex(line, r'\["[0-9]+\. ')
+        for term in ('Radarr', 'Prowlarr', 'qBittorrent', 'hardlink', 'Series: Sonarr', 'Nueva adquisición por validar', 'monitor de episodios probado'):
+            self.assertIn(term, graph)
+        for term in ('Torrent manual: categoría y ruta', 'manual --> download',
+                     'Registro de colección SMB pendiente', 'existing -.->',
+                     'Sólo faltantes: eventos y cada 6 h'):
+            self.assertIn(term, graph)
+
+
+class ManualTorrentWorkflow(unittest.TestCase):
+    def test_manual_torrent_guide_distinguishes_downloads_from_library(self):
+        guide = (MODULE / 'docs/workflow.md').read_text()
+        self.assertIn('## Add a Torrent Manually', guide)
+        self.assertIn('| Series | `tv` | `/data/downloads/tv` | Sonarr: `/data/media/tv` |', guide)
+        self.assertIn('| Películas | `movies` | `/data/downloads/movies` | Radarr: `/data/media/movies` |', guide)
+        self.assertIn('Category no registra el título', guide)
+        self.assertIn('auto_tmm: false', guide)
+        self.assertIn('sonarr.md#adopt-existing-downloads', guide)
+        self.assertIn('##' + '# Worked Example: Manual Season', guide)
+        self.assertIn('../images/jellyfin-manual-season-imported.jpg', guide)
+        self.assertTrue((MODULE / 'images/jellyfin-manual-season-imported.jpg').read_bytes().startswith(b'\xff\xd8\xff'))
+
+    def test_manual_add_screenshot_is_full_form_not_final_configuration(self):
+        guide = (MODULE / 'docs/workflow.md').read_text()
+        image_name = 'qbittorrent-manual-add-form.png'
+        self.assertIn('../images/' + image_name, guide)
+        self.assertIn(image_name, (MODULE / 'images/README.md').read_text())
+        image = (MODULE / 'images' / image_name).read_bytes()
+        self.assertTrue(image.startswith(b'\x89PNG\r\n\x1a\n'))
+        self.assertEqual(image[12:16], b'IHDR')
+        self.assertEqual(struct.unpack('>II', image[16:24]), (1303, 992))
+        for distinction in ('antes de Download', 'Category vacía',
+                            'no la configuración final comprobada',
+                            'cambiar sólo la ruta de descarga no completa ese paso',
+                            'El paso extra fue registrar la serie y dejar que Sonarr la importara'):
+            self.assertIn(distinction, guide)
 
 
 if __name__ == '__main__':

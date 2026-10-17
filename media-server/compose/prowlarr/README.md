@@ -1,9 +1,8 @@
 # Prowlarr Compose Module
 
-**Status:** Deployed and healthy; Forms/Enabled authentication saved and verified; Knaben saved/enabled; manager integrations pending.
+Gestor de fuentes con config NVMe, sin HDD; Knaben/The Pirate Bay y sincronización Radarr comprobados.
 
-- [Service guide](../../docs/prowlarr.md) — canonical setup, authentication, integration plan, verification and operation.
-- [Manifest](compose.yaml), [private environment template](.env.example), [image lock](image-lock.json).
-- [First-deployment script](../../scripts/deploy-prowlarr.py) — explicit apply, existing-storage guard, refuses existing state.
+- [Guía canónica](../../docs/prowlarr.md): requisitos, despliegue, configuración y validación.
+- [Manifest](compose.yaml), [environment template](.env.example), [image lock](image-lock.json).
 
-Runtime `/srv/media-server/compose/prowlarr/`; appdata only on NVMe. No access to HDD downloads/library. No secrets or databases here.
+Sólo este servicio; no guardar runtime, bases de datos ni secretos en el módulo. El instalador de primer despliegue rechaza estado existente.

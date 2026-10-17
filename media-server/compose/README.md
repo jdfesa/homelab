@@ -1,11 +1,12 @@
 # Media Server Compose Modules
 
-Real service manifests owned by this VM. Runtime copies live in Debian under `/srv/media-server/compose/`; configuration/cache live on the NVMe, not in this repository.
+Manifiestos desplegados por servicio. Runtime en Debian bajo `/srv/media-server/compose/`; appdata en NVMe, fuera del repositorio. Cada módulo enlaza su procedimiento canónico y fija una imagen inmutable.
 
-- [Jellyfin](jellyfin/README.md): LAN movie/TV playback, with read-only HDD library access.
+- [Jellyfin](jellyfin/README.md): catálogo y reproducción; biblioteca RO.
+- [qBittorrent](qbittorrent/README.md): transferencias; sólo descargas RW.
+- [Prowlarr](prowlarr/README.md): fuentes e integración con Radarr; sin biblioteca.
+- [Sonarr](sonarr/README.md): perfil HD, conexiones y adopción real por hardlink probados; adquisición nueva pendiente.
+- [Radarr](radarr/README.md): gestión de películas y hardlinks; bind común `/data`.
+- [Bazarr](bazarr/README.md): EN/ES con Radarr/Sonarr, OpenSubtitles.com y aviso a Jellyfin; sólo biblioteca RW.
 
-- [qBittorrent](qbittorrent/README.md): cliente de descargas; desplegado/healthy; rutas/categorías verificadas, primer ingreso confirmado; primera descarga sin verificar.
-
-- [Prowlarr](prowlarr/README.md): gestor de indexadores; desplegado/healthy; autenticaciónForms/Enabled guardada/verificada; primera fuente pendiente.
-
-Manager modules will be added only when deployed. See the [Roadmap](../ROADMAP.md) for the remaining automation pipeline.
+Los límites funcionales se encuentran en el [roadmap](../ROADMAP.md); healthy no equivale a una prueba de todo el flujo.

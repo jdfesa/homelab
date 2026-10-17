@@ -16,7 +16,7 @@ Los scripts reutilizables están en [scripts/](../scripts/README.md), con README
 - `/data` RW por UUID en fstab, opciones `defaults,noatime,nodev,nosuid,noexec,nofail,x-systemd.device-timeout=10s`, fsck pass `2`.
 - Directorios `downloads/{movies,tv}` y `media/{movies,tv}`: root:media, GID2000, modo `2770`. `lost+found` pertenece al filesystem, no a una biblioteca.
 - Aproximadamente 1,80 TiB disponibles en la comprobación inicial; espacio/inodes variarán con el contenido y la inicialización del filesystem.
-- Docker protegido por dependencia de `data.mount` y comprobación UUID/ext4/RW. No se desplegaron aplicaciones multimedia.
+- Docker protegido por dependencia de `data.mount` y comprobación UUID/ext4/RW. El estado de las aplicaciones está en el [README](../README.md).
 
 ## Initial Read-only Attachment
 
@@ -76,9 +76,9 @@ Hotplug funcionó en esta VM: no se requirió apagado. Si en una reproducción n
 - La tabla de particiones del HDD antes/después coincide. La comprobación es de metadatos y no una comparación completa de todos los archivos personales.
 - Configuración DSM idéntica byte a byte y proceso de VM sin reinicio. No se cambió su disco, boot, red ni almacenamiento.
 - El script específico y el resultado con IDs/seriales viven sólo en `media-server/.local/attach-hdd.py` y `hdd-attachment-result.json`. No publicar esos archivos ni copiar seriales/huellas a esta guía.
-- En esa primera etapa sólo se verificó asignación en caliente/configuración; la preparación y prueba de reinicio se completaron después, como se detalla más abajo. La automatización de aplicaciones aún no funciona.
+- En esa primera etapa sólo se verificó asignación en caliente/configuración; la preparación y prueba de reinicio se completaron después, como se detalla más abajo. Esta evidencia corresponde sólo a la asignación inicial del disco.
 
-Los puntos anteriores describen lo verificado al asignar por primera vez, no el estado posterior al formato. La automatización de aplicaciones sigue sin desplegarse.
+Los puntos anteriores describen lo verificado al asignar por primera vez, no el estado posterior al formato. Consultar el [runbook actual](../RUNBOOK.md) para aplicaciones e integración.
 
 ## Preparation Scripts and Executed Steps
 
@@ -154,7 +154,7 @@ python3 /root/media-server-scripts/verify-media-storage.py --probe-missing-mount
 
 Verificó fstab/UUID, permisos, journal ext4, dependencias Docker, servicios y espacio. La ausencia de montaje se probó **sólo en un namespace hijo privado**: la guarda rechazó el caso y `/data` subyacente estaba vacío. El montaje global y Docker siguieron activos; no se desconectó físicamente el HDD.
 
-La prueba de hardlinks es del filesystem/permisos, **no todavía una importación real Radarr/Sonarr**. Después se ejecutó `qm reboot 102 --timeout 90` desde Proxmox, sin cambios pendientes, y se repitió la verificación: `/data`, UUID, permisos, Docker y servicios base correctos; IP fija conservada y cero unidades fallidas.
+Esta prueba inicial de hardlinks sólo validaba filesystem/permisos; las importaciones reales posteriores de Radarr/Sonarr se documentan en [Validation](validation.md). Después se ejecutó `qm reboot 102 --timeout 90` desde Proxmox, sin cambios pendientes, y se repitió la verificación: `/data`, UUID, permisos, Docker y servicios base correctos; IP fija conservada y cero unidades fallidas.
 
 **Hallazgo importante:** el nombre `sdX` del HDD cambió tras reiniciar, pero el montaje por UUID siguió correcto. Los campos device/partition de los logs del formateador son observaciones históricas; no usarlos como destinos para futuras operaciones. Se hicieron dos reinicios controlados de VM102 (habilitar escritura y probar persistencia); ninguno de DSM.
 

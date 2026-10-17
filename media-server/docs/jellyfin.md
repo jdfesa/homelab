@@ -1,18 +1,16 @@
 # Jellyfin Service Guide
 
-**Status:** Setup complete and LAN HTTP verified; playback pending · **Updated:** 2026-10-16.
+Jellyfin12.2.0 está desplegado con imagen oficial fijada por digest. Se comprobaron bibliotecas, lectura RO, reproducción LAN desde tablet y selección de subtítulos incluidos. La detección automática de un nuevo episodio se comprobó después de inicializar las raíces de biblioteca; no implica aparición instantánea.
 
-## Verified Deployment
+## Deployment
 
-`deploy-jellyfin.py` completed successfully on 2026-10-16. `docker compose config` and `up -d --wait` passed; one Jellyfin container is healthy. Version `12.2.0`, official image digest in [image lock](../compose/jellyfin/image-lock.json), linux/amd64. HTTP200 from the Mac on `/health`, `/System/Info/Public` and `/web/index.html`; startup wizard was subsequently completed and verified through the public API.
+[Compose](../compose/jellyfin/compose.yaml) · [Image lock](../compose/jellyfin/image-lock.json) · [Environment template](../compose/jellyfin/.env.example) · [Script](../scripts/deploy-jellyfin.py).
 
-Container UID1000:GID2000 can read both library folders and cannot write to the `/media` bind mount. Appdata is on the OS/NVMe filesystem, not `/data`. Existing storage guard and base services passed again with zero failed units; DSM configuration hash and process identity were unchanged before/after. No VM restart or access/credential change was performed.
+Ejecutar sólo como root dentro de la VM Debian existente, con Docker/Compose y almacenamiento ya preparados. El script exige guarda UUID/ext4/RW, imagen inspeccionada, IPv4 privada asignada y ausencia de stack/appdata; no sirve para actualizar ni reparar una instalación existente.
 
-## Deployment Boundary
-
-Run only inside the existing Debian media VM, not on Proxmox or the administration Mac. This module creates no VM, formats no disk and changes no administrative access. It uses the existing `/data` UUID guard before starting.
-
-The reviewed manifest requires an official image pinned by version and digest, plus the private VM LAN address. Complete a private copy of `.env.example` after image inspection. Copy the manifest, environment and [deployment script](../scripts/deploy-jellyfin.py) to the guest. That script requires explicit `--apply` and rejects an existing stack; it is for first deployment, not upgrades. **The current VM is already deployed: do not rerun this installer.**
+1. Copiar el script como `/root/media-server-scripts/deploy-jellyfin.py`, el manifiesto como `jellyfin-compose.yaml` y una copia privada del entorno como `jellyfin.env` (modo0600).
+2. Completar `JELLYFIN_BIND_ADDRESS` con la IP LAN de Debian y conservar `JELLYFIN_IMAGE` del lock. Obtener e inspeccionar esa imagen, sin sustituirla por un tag mutable.
+3. Ejecutar:
 
 ```sh
 python3 /root/media-server-scripts/deploy-jellyfin.py --apply \
@@ -20,55 +18,24 @@ python3 /root/media-server-scripts/deploy-jellyfin.py --apply \
   --env-file /root/media-server-scripts/jellyfin.env
 ```
 
-Runtime manifests belong in `/srv/media-server/compose/jellyfin/`. Config/cache use `/srv/media-server/appdata/jellyfin/`; only those new app directories receive UID1000/GID2000 ownership. No recursive permission changes to the HDD.
+| Recurso | Configuración |
+| --- | --- |
+| Runtime | `/srv/media-server/compose/jellyfin/` |
+| Config/cache NVMe | `/srv/media-server/appdata/jellyfin/` |
+| Biblioteca | `/data/media` → `/media`, **RO** |
+| Identidad | UID1000:GID2000 |
+| Web | TCP8096 en la IPv4 LAN |
 
-## Client Setup and Acceptance
+No aplicar cambios recursivos de permisos al HDD. El instalador no crea cuentas, adquiere videos ni modifica DSM.
 
-Open the VM's HTTP8096 address from a computer/tablet on the LAN. Complete Jellyfin's own setup wizard directly in the browser; no account secrets belong in chat or the repository.
+## Configure the Wizard
 
-### Wizard Example Values
+1. Abrir `http://<IP_DE_LA_VM>:8096`.
+2. Elegir interfaz **English**, nombre **Media Server** y crear la cuenta administradora con una contraseña propia. El idioma de interfaz no elige audio/subtítulos.
+3. Crear Shows y Movies con las tablas siguientes. Son rutas del contenedor, no de descargas.
+4. Elegir metadatos **English**, región **Argentina** y finalizar el asistente.
 
-El usuario pidió que los ejemplos de la guía coincidan con los valores que usaremos realmente, no con placeholders. Para estas pantallas:
-
-| Field | Example / installation value | Status |
-| --- | --- | --- |
-| Preferred display language | `English` | Elegido por el usuario |
-| Server name | `Media Server` | Confirmado posteriormente por la API pública |
-| Username | `jellyfin-admin` | Elegido/completado y confirmado en captura; usuario ya avanzó al paso de bibliotecas |
-| Password | Elegida por el usuario directamente en Jellyfin | No se documenta su valor |
-| Password (confirm) | Repetir la contraseña elegida en la interfaz | No se documenta su valor |
-
-En **Tell us about yourself**, el username corresponde a la cuenta administradora inicial de Jellyfin. Completar los tres campos y pulsar **Next**; no marcar el asistente como terminado por avanzar una pantalla. El idioma de pantalla no define todavía idiomas de audio, subtítulos o metadatos.
-
-### Initial Administrator Screenshot
-
-Captura aportada por el usuario: `jellyfin-admin` es el nombre usado en esta instalación y el ejemplo de la guía. Los campos de contraseña aparecen enmascarados por Jellyfin; su valor no se documenta. La imagen muestra el formulario completado **antes de pulsar Next**, no el asistente finalizado.
-
-![Jellyfin: cuenta administradora inicial jellyfin-admin y contraseñas enmascaradas](../images/jellyfin-initial-admin-account.png)
-
-### Add Media Libraries
-
-El usuario llegó a **Add Media Library**. Crear primero la biblioteca de series, sin mezclar películas en ella. Valores de Shows confirmados en el formulario final; Movies corresponde al siguiente paso. El listado posterior del asistente confirma ambas entradas:
-
-| Field | TV library | Movie library, later |
-| --- | --- | --- |
-| Content type | `Shows`, confirmado en la interfaz | `Movies` |
-| Display name | `Shows`, como aparece en la captura del usuario | `Movies` |
-| Folders | `/media/tv` | `/media/movies` |
-
-En **Folders**, pulsar **+**, introducir o seleccionar `/media/tv` y confirmar la carpeta. Es la ruta **dentro del contenedor**: el bind mount convierte `/data/media` del huésped en `/media` para Jellyfin. No usar `/data/downloads` como biblioteca ni crear una segunda copia del contenido.
-
-Primero completar estos tres campos; revisar las opciones adicionales que muestre el tipo de biblioteca antes de guardar, sin asumir preferencias de idioma de metadatos/audio/subtítulos a partir de English en la interfaz.
-
-### Language Preferences and Reviewed Library Options
-
-El usuario confirmó **audio original → inglés si no hay original** y **subtítulos español e inglés disponibles para elegir**, no simultáneos. Conservar estas preferencias para reproducción, fuentes/versiones y gestor de subtítulos; no confundirlas con idioma de metadatos.
-
-En la captura actual, **Content type = Shows** es correcto. `TV Shows` fue un nombre visible sugerido, no otra opción de tipo que deba buscarse. La captura final ya muestra `/media/tv` agregada correctamente.
-
-### Verified Shows Configuration
-
-**Referencia principal para volver a configurar esta biblioteca:** usar la captura final aprobada y los valores de esta tabla. Corresponden a Jellyfin12.2, con `/media` montado en sólo lectura. La imagen muestra el formulario correcto antes de pulsar **OK**; no demuestra por sí sola reproducción ni fin del asistente.
+### Shows
 
 | Setting | Verified form value | Reason |
 | --- | --- | --- |
@@ -94,21 +61,9 @@ En la captura actual, **Content type = Shows** es correcto. `TV Shows` fue un no
 | Chapter Images: ambas casillas | Off | Evitar trabajo intensivo adicional en la validación inicial |
 | Save subtitles into media folders | **Off: desmarcar** | Jellyfin no debe intentar escribir en `/media`, montado RO |
 
-![Referencia aprobada de configuración Shows: carpeta media tv, metadatos English y opciones revisadas](../images/jellyfin-shows-library-reviewed.png)
+![Configuración de Shows](../images/jellyfin-shows-library-reviewed.png)
 
-**Última revisión visual antes de guardar: aprobada.** La nueva captura confirma `Shows`, `/media/tv`, `English` para metadatos y `Argentina`; **Save subtitles into media folders está desmarcado**. NFO/artwork/trickplay/chapter images permanecen desactivados y el resto visible coincide con lo indicado. No se observan otros cambios pendientes en esta pantalla: pulsar **OK**. El listado posterior confirmó el guardado y la API pública confirmó después el fin del asistente; la reproducción aún no se probó.
-
-Desmarcar el último ajuste no bloquea leer subtítulos incluidos en el video ni archivos externos ya presentes. La adquisición de español/inglés se configurará en la etapa del gestor de subtítulos; no se instaló ningún proveedor nuevo ni se habilitó escritura de Jellyfin en el HDD.
-
-- TV shows library: `/media/tv` inside the container.
-- Movies library: `/media/movies` inside the container.
-- Keep automatic port mapping disabled; this milestone is local playback only.
-- Initially test direct playback of one authorized episode and movie. Record client, container format/codecs and whether playback is direct/remux/transcoded. Do not equate a healthy HTTP endpoint with successful playback.
-- The HDD library is currently empty. Installing Jellyfin does not acquire episodes; acquisition/import automation is the next separate milestone.
-
-### Verified Movies Configuration
-
-**Referencia principal para volver a configurar películas:** captura final revisada y aprobada, antes de pulsar **OK**. Los valores visibles son correctos para esta instalación; no se observa otro cambio pendiente en el formulario.
+### Movies
 
 | Setting | Verified form value |
 | --- | --- |
@@ -129,63 +84,42 @@ Desmarcar el último ajuste no bloquea leer subtítulos incluidos en el video ni
 | Chapter Images: ambas casillas | Off |
 | Save subtitles into media folders | Off, coherente con `/media` de sólo lectura |
 
-![Referencia aprobada de configuración Movies: media movies, English, Argentina y opciones revisadas](../images/jellyfin-movies-library-reviewed.png)
+![Configuración de Movies](../images/jellyfin-movies-library-reviewed.png)
 
-**Siguiente acción del usuario:** pulsar **OK** para guardar Movies. Al volver al listado, comprobar que aparezcan **Shows** y **Movies** antes de continuar el asistente. La captura de este formulario no confirma por sí sola el guardado ni la reproducción.
+![Bibliotecas configuradas con sus rutas](../images/jellyfin-libraries-configured.png)
 
-### Configured Libraries Overview
+![Metadatos English y región Argentina](../images/jellyfin-global-metadata-reviewed.png)
 
-El listado del asistente ya confirma que ambas bibliotecas fueron agregadas:
-
-| Library | Container folder |
-| --- | --- |
-| `Movies` | `/media/movies` |
-| `Shows` | `/media/tv` |
-
-![Jellyfin: listado del asistente con Movies y Shows configuradas y sus rutas](../images/jellyfin-libraries-configured.png)
-
-Con ambas entradas correctas, pulsar **Next**. Este listado confirma el alta en el asistente, no que haya contenido, reproducción comprobada o que el asistente ya haya terminado.
-
-### Global Metadata Defaults
-
-En **Preferred Metadata Language**, usar los mismos valores que elegimos para ambas bibliotecas:
-
-| Field | Value |
-| --- | --- |
-| Language | `English` |
-| Country/Region | `Argentina` |
-
-**Captura revisada y aprobada:** `English` y `Argentina` ya están seleccionados correctamente. Usar esta imagen como referencia para repetir la configuración y pulsar **Next** para continuar. Estos son valores globales predeterminados para metadatos (títulos, sinopsis y región); se pueden personalizar por biblioteca. No configuran el idioma del audio ni los subtítulos. La captura confirma los campos antes de avanzar, no el fin del asistente.
-
-![Jellyfin: metadatos globales English y región Argentina, configuración aprobada](../images/jellyfin-global-metadata-reviewed.png)
+Guardar cada biblioteca y comprobar que ambas aparecen con su ruta correcta. **NFO, artwork, trickplay, chapter images y guardado de subtítulos en carpetas de medios permanecen desactivados**, coherentes con el montaje RO. Esto no impide leer pistas ya presentes.
 
 ### Remote Access Scope
 
-**Elección confirmada del usuario:** dejar **marcada** `Allow remote connections to this server`, pulsar **Next** y finalizar el asistente. No desmarcarla siguiendo la recomendación inicial descartada.
+![Permiso de acceso remoto habilitado](../images/jellyfin-remote-access-enabled.png)
 
-![Jellyfin: Allow remote connections to this server activado por elección del usuario](../images/jellyfin-remote-access-enabled.png)
+El permiso de conexiones remotas está ON en esta configuración; no abre puertos del router ni publica el servicio en Internet. No se configuraron WAN, VPN ni proxy. Mantener port mapping automático desactivado.
 
-Esta opción permite conexiones que Jellyfin clasifica como externas, sujetas a los permisos y autenticación. **No abre puertos del router ni publica automáticamente el servidor en Internet.** No configuramos WAN, VPN ni proxy; el puerto Docker sigue ligado a la IP privada de la VM. La LAN funciona con ambas posiciones bajo la clasificación local actual. Si después se cambian redes locales o proxies, revisar su clasificación.
+## Discovery and Playback
 
-Referencias: [Networking — Allowing Access](https://jellyfin.org/docs/general/post-install/networking/#allowing-access), [NetworkManager12.2 — InitializeLan](https://github.com/jellyfin/jellyfin/blob/v12.2/src/Jellyfin.Networking/Manager/NetworkManager.cs#L290-L310) y [controlador del asistente12.2](https://github.com/jellyfin/jellyfin/blob/v12.2/Jellyfin.Api/Controllers/StartupController.cs#L80-L95).
+- Movies usa `/media/movies`; Shows usa `/media/tv`. No añadir `/data/downloads` como biblioteca.
+- El monitor en tiempo real está habilitado; `LibraryMonitorDelay=60s` no garantiza aparición exacta al minuto.
+- Inicializar las bibliotecas con contenido mediante **Scan all libraries**. Una raíz vacía había sido omitida y no tenía watch pese a Realtime Monitor ON; escanear sólo Shows no bastó. Tras inicializarla se comprobó un episodio posterior sin escaneo manual. [Procedimiento y límites](validation.md#library-discovery).
+- Las pistas integradas o externas compatibles pueden seleccionarse sin gestor adicional. [Bazarr](bazarr.md#automatic-jellyfin-refresh) busca EN/ES faltantes y avisa a Jellyfin; la incorporación de un SRT de episodio sin escaneo manual está comprobada. No confundirlo con sincronización garantizada para toda edición.
+- Validar reproducción y selección de pistas desde el cliente; una respuesta HTTP saludable no sustituye esa prueba.
 
-### Setup Completion
+## Operations and Recovery
 
-El usuario terminó el asistente y llegó a Home. La comprobación pública posterior confirmó **StartupWizardCompleted = true**, nombre **Media Server**, versión **12.2.0** y HTTP200 en health/API/web. Shows y Movies aparecen en el listado del asistente con sus rutas correctas.
+Dentro de Debian:
 
-**Pendiente:** prueba real de reproducción, no la configuración inicial. El usuario eligió continuar primero con qBittorrent en lugar de aportar un archivo manual de prueba; se probará el primer contenido autorizado cuando esté disponible. No reinstalar ni repetir el asistente.
+```sh
+cd /srv/media-server/compose/jellyfin
+docker compose ps
+docker compose logs --tail=100
+```
 
-## Operations
-
-Inside Debian, with normal administrative privileges, run Compose from `/srv/media-server/compose/jellyfin/`: `docker compose ps`, `docker compose logs --tail=100` and `docker compose stop`. The image provides `/health`; verify HTTP and public server version from another LAN device too. A container restart is not a full VM-reboot/missing-disk acceptance test.
-
-Before upgrading, stop only Jellyfin and take a consistent independent copy of its configuration directory, manifest and private environment. Cache is expendable; the HDD media requires its own backup policy. Choose and inspect a new explicit image digest manually, then recreate only this service. To roll back a migration, restore the matching stopped configuration backup and old image together; merely changing the image may not undo a database migration. Backup/restore has not yet been tested.
+Antes de actualizar, detener sólo Jellyfin y obtener una copia privada consistente de configuración, manifiesto y entorno. Elegir una nueva imagen por digest; rollback puede requerir restaurar la base de datos compatible, no sólo cambiar la imagen. Cache es prescindible; contenido del HDD y configuración necesitan políticas de copia separadas. Restauración independiente aún no probada.
 
 ## Sources
 
 - [Official container guide](https://jellyfin.org/docs/general/installation/container/).
-- [Selected release 12.2](https://github.com/jellyfin/jellyfin/releases/tag/v12.2).
-- [Official setup wizard](https://jellyfin.org/docs/general/post-install/setup-wizard/).
-- [Compose services](https://docs.docker.com/reference/compose-file/services/).
-- [Jellyfin12.2 library options model](https://github.com/jellyfin/jellyfin/blob/v12.2/MediaBrowser.Model/Configuration/LibraryOptions.cs) — metadatos y subtítulos son opciones separadas.
-- [Chapter images](https://jellyfin.org/docs/general/server/metadata/chapter-images/) — extracción opcional y coste de escaneo.
+- [Setup wizard](https://jellyfin.org/docs/general/post-install/setup-wizard/).
+- [Networking](https://jellyfin.org/docs/general/post-install/networking/).

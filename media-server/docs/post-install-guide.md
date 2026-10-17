@@ -152,7 +152,7 @@ Ahora también puede cambiarse desde una Terminal **privada** de la Mac: desde `
 - [x] Asignar HDD nuevo por `by-id` en sólo lectura y verificarlo sin montaje/formato ni cambios en DSM.
 - [x] Preparar HDD autorizado con GPT/ext4, directorios/permisos y guardas de montaje; prueba de hardlinks del filesystem sin root.
 - [x] Jellyfin desplegado, healthy, LAN HTTP200, asistente y bibliotecas completados; ver [guía del servicio](jellyfin.md).
-- [ ] Probar reproducción real y desplegar/integrar qBittorrent/Prowlarr/Radarr/Sonarr; completar las cuatro capas.
+- Consultar el [estado comprobado del módulo](../ROADMAP.md) y sus [pendientes técnicos](../TODO.md) antes de desplegar otro servicio; no repetir instalaciones ya realizadas.
 
 ## References
 

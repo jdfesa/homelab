@@ -32,8 +32,9 @@ class MediaServerReferenceTests(unittest.TestCase):
         self.assertEqual(config["installer"]["root_password_policy"], "locked-password")
         self.assertEqual(config["installer"]["selected_tasks"], ["ssh-server", "standard"])
 
-    def test_media_hdd_is_prepared_with_uuid_mount_and_safety_guards(self):
-        disk = json.loads((MODULE / "vm-config.json").read_text())["media_disk"]
+    def test_media_hdd_reference_preserves_mount_and_hardlink_contract(self):
+        state = json.loads((MODULE / "vm-config.json").read_text())
+        disk = state["media_disk"]
         self.assertTrue(disk["attached_verified"])
         self.assertEqual(disk["bus_device"], "scsi1")
         self.assertEqual(disk["attachment_method"], "whole-physical-disk-by-id")
@@ -41,30 +42,30 @@ class MediaServerReferenceTests(unittest.TestCase):
         self.assertIsNone(disk["stable_device_path"])
         self.assertFalse(disk["read_only"])
         self.assertFalse(disk["backup_included"])
-        self.assertTrue(disk["hotplug_verified"])
-        self.assertFalse(disk["initial_attachment_shutdown_performed"])
-        self.assertTrue(disk["dsm_config_and_process_unchanged_verified"])
-        self.assertEqual(disk["previous_filesystem"], "ntfs")
         self.assertEqual(disk["partition_table"], "gpt")
         self.assertEqual(disk["filesystem"], "ext4")
+        self.assertEqual(disk["mountpoint"], "/data")
+        self.assertEqual(disk["directory_gid"], 2000)
+        self.assertEqual(disk["directory_mode"], "2770")
         self.assertTrue(disk["mounted_verified"])
-        self.assertTrue(disk["formatting_performed"])
         self.assertTrue(disk["fstab_by_uuid"])
         self.assertIsNone(disk["filesystem_uuid"])
         self.assertTrue(disk["mount_reboot_persistence_verified"])
         self.assertTrue(disk["filesystem_hardlink_probe_verified"])
-        self.assertFalse(disk["application_hardlink_import_verified"])
+        self.assertTrue(disk["application_hardlink_import_verified"])
+        self.assertTrue(state["validation"]["application_hardlink_import_verified"])
+        self.assertTrue(state["applications"]["radarr"]["single_common_data_bind_verified"])
         self.assertTrue(disk["docker_mount_guard_verified"])
         self.assertTrue(disk["missing_mount_private_namespace_probe_verified"])
         self.assertFalse(disk["physical_disconnect_test_verified"])
         self.assertTrue((MODULE / disk["guide"]).is_file())
 
-    def test_ssh_connection_verified_does_not_imply_password_rotation_or_global_hardening(self):
+    def test_ssh_reference_keeps_nonroot_installation_boundary(self):
         base = json.loads((MODULE / "vm-config.json").read_text())["base"]
         self.assertEqual(base["ssh_key_authorization"], "installed-publickey-verified")
         self.assertTrue(base["ssh_publickey_connection_verified"])
         self.assertFalse(base["ssh_global_authentication_policy_changed"])
-        self.assertEqual(base["password_rotation"], "pending-user-private-action")
+        self.assertNotIn("password", base)
         self.assertTrue((MODULE / base["ssh_key_installer"]).is_file())
 
     def test_local_document_links_exist(self):
@@ -116,6 +117,15 @@ class MediaServerReferenceTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("--apply", result.stderr)
+
+
+    def test_runbook_is_a_compact_single_entry_point(self):
+        runbook = (MODULE / "RUNBOOK.md").read_text()
+        self.assertLessEqual(len(runbook.split()), 750)
+        self.assertLessEqual(len(runbook.splitlines()), 80)
+        self.assertIn("(RUNBOOK.md)", (MODULE / "README.md").read_text())
+        self.assertIn("(../RUNBOOK.md)", (MODULE / "docs/README.md").read_text())
+
 
 
 if __name__ == "__main__":

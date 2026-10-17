@@ -1,9 +1,8 @@
-# qBittorrent Compose Module
+# Qbittorrent Compose Module
 
-Reviewed deployment files for the Debian media VM. **Deployed and healthy; LAN/API verified. User login and permanent-password change confirmed; no manual download started. Automation integration pending.**
+Cliente fijado por digest, config NVMe y sólo downloads en HDD; rutas/categorías e integración Radarr comprobadas.
 
-- [Service guide](../../docs/qbittorrent.md) — canonical deployment, configuration and verification instructions.
-- [Manifest](compose.yaml), [private environment template](.env.example), [image lock](image-lock.json).
-- [First-deployment script](../../scripts/deploy-qbittorrent.py) — guarded, explicit apply; not an upgrade script.
+- [Guía canónica](../../docs/qbittorrent.md): requisitos, despliegue, configuración y validación.
+- [Manifest](compose.yaml), [environment template](.env.example), [image lock](image-lock.json).
 
-Runtime: `/srv/media-server/compose/qbittorrent/`. Appdata on NVMe; downloads only on the HDD. No secrets or runtime data here.
+Sólo este servicio; no guardar runtime, bases de datos ni secretos en el módulo. El instalador de primer despliegue rechaza estado existente.
