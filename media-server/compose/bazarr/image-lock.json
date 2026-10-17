@@ -1,0 +1,11 @@
+{
+  "reviewed_on": "2026-10-16",
+  "release": "1.6.2",
+  "release_source": "https://github.com/morpheus65535/bazarr/releases/tag/v1.6.2",
+  "image_source": "https://github.com/linuxserver/docker-bazarr",
+  "image": "lscr.io/linuxserver/bazarr@sha256:e3313a245b92d7c055e2a8e370b54bc1aeb4b3b4c36420ce18809a6e87c687b2",
+  "platform": "linux/amd64",
+  "image_version_label": "v1.6.2-ls368",
+  "image_revision": "8a64a4385efeb65f13939c17d61372dbc54d3a12",
+  "automatic_updates": false
+}

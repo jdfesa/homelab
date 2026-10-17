@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "bazarr_version": "1.6.2",
+  "profile": {
+    "name": "English + Spanish",
+    "cutoff": null,
+    "items": [
+      {
+        "id": 1,
+        "language": "en",
+        "hi": "False",
+        "forced": "False",
+        "audio_exclude": "False",
+        "audio_only_include": "False"
+      },
+      {
+        "id": 2,
+        "language": "es",
+        "hi": "False",
+        "forced": "False",
+        "audio_exclude": "False",
+        "audio_only_include": "False"
+      }
+    ],
+    "mustContain": [],
+    "mustNotContain": [],
+    "originalFormat": 0
+  },
+  "language_filter": [
+    "en",
+    "es"
+  ],
+  "single_language": false,
+  "embedded_count_as_downloaded": true,
+  "external_subtitle_folder": "current",
+  "default_for_new_movies": true,
+  "default_for_future_series": true,
+  "upgrade_subs": false,
+  "automatic_sync": false,
+  "providers_enabled": [
+    "opensubtitlescom"
+  ],
+  "screenshots": [
+    "bazarr-language-selection.jpg",
+    "bazarr-language-profile-details.jpg",
+    "bazarr-language-profile-defaults.jpg",
+    "bazarr-existing-subtitles-policy.jpg",
+    "bazarr-embedded-languages-detected.jpg",
+    "jellyfin-manual-subtitles-recognized.jpg"
+  ],
+  "provider_options": {
+    "use_hash": true,
+    "include_ai_translated": false,
+    "include_machine_translated": false
+  },
+  "automatic_search": {
+    "missing_series_every_hours": 6,
+    "missing_movies_every_hours": 6,
+    "new_imports_via_signalr": true,
+    "concurrent_jobs": 1
+  },
+  "jellyfin": {
+    "enabled": true,
+    "api_key_app_name": "Bazarr",
+    "movie_library_names": [
+      "Movies"
+    ],
+    "series_library_names": [
+      "Shows"
+    ],
+    "update_movie_library": true,
+    "update_series_library": true,
+    "refresh_method": "immediate"
+  }
+}
