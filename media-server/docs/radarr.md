@@ -113,7 +113,7 @@ Test → Save y comprobar tarjeta Enabled. Si falla autenticación, diagnosticar
 
 ![Cliente guardado y Enabled](../images/radarr-qbittorrent-client-saved.png)
 
-El formulario original conserva la IP LAN del laboratorio como referencia visual; los ejemplos reutilizables usan placeholders. La [credencial de laboratorio](qbittorrent.md#laboratory-login-example) se mantiene sólo en su sección canónica, no aquí.
+Para reproducirlo, usar en **Host** la IP de la VM que ejecuta qBittorrent y su credencial vigente. El [ejemplo de acceso](qbittorrent.md#laboratory-login-example) se mantiene en su sección canónica, sin duplicarlo aquí.
 
 ### 7.4. Language and Quality Profiles
 

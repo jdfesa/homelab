@@ -80,4 +80,4 @@ El recorrido de películas está probado. Sonarr ya adopta descargas existentes 
 - [Política de Radarr](docs/radarr-profile-policy.json): declarativa; resolver IDs por nombre en cada instalación.
 - [Decisiones de diseño](docs/decision-log.md), [alcance y límites](ROADMAP.md) y [pendientes técnicos](TODO.md).
 
-Los valores del sitio permanecen en `.local/`. Las notas de trabajo y pruebas transitorias van en `tmp/`, fuera de Git. La guía conserva procedimientos comprobados, no una bitácora por título descargado. Se mantiene la excepción de publicación existente del [acceso de laboratorio qBit](docs/qbittorrent.md#laboratory-login-example); no ampliarla a otras credenciales.
+Los valores del sitio permanecen en `.local/`. Las notas de trabajo y pruebas transitorias van en `tmp/`, fuera de Git. La guía conserva procedimientos comprobados, no una bitácora por título descargado. El [ejemplo de acceso qBit](docs/qbittorrent.md#laboratory-login-example) ilustra los campos; no reutilizar sus valores en otras instalaciones.

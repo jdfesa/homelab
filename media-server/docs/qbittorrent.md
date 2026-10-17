@@ -63,14 +63,14 @@ No guardar secretos en argumentos, URLs, Compose o capturas. No utilizar logs co
 
 ## Laboratory Login Example
 
-Excepción pública existente de este laboratorio; no copiarla como contraseña predeterminada a otra instalación:
+Ejemplo de los campos de acceso; elegir una contraseña única en cada instalación:
 
 | Campo | Valor de ejemplo |
 | --- | --- |
 | Username | `admin` |
 | Password | `adminadmin` |
 
-**Advertencia:** esta credencial es pública. No es un secreto ni una recomendación para acceso público. Mantener otras credenciales/API keys fuera del repositorio; no ampliar esta excepción.
+**No reutilizar estos valores en otros servicios ni en una instalación nueva.** Mantener las contraseñas y API keys propias fuera del repositorio.
 
 ## WebUI Login Recovery — Explicit Scoped Reset
 

@@ -21,6 +21,6 @@ Decisiones que explican la configuración reproducible; no es un historial de co
 | Audio original 100 / inglés 10, mínimo 1 | Preferencia por metadatos del release; comprobar las pistas reales y no confundirlo con descarga de subtítulos |
 | Guías públicas frente a notas temporales | Publicar pasos/configuración probados y herramientas reutilizables; actividad, ensayos e inventarios en tmp/local ignorados |
 
-Una excepción histórica mantiene el [acceso qBit de laboratorio](qbittorrent.md#laboratory-login-example) en su sección canónica por elección expresa. No autoriza nuevos secretos ni convierte esa credencial pública en segura.
+El [ejemplo de acceso qBit](qbittorrent.md#laboratory-login-example) se conserva en su sección canónica, sin duplicar valores. Cada instalación debe elegir sus propias credenciales y mantenerlas fuera del repositorio.
 
 Las capacidades no validadas se enumeran sólo como [límites/pendientes](../TODO.md), no como procedimientos funcionales.

@@ -38,4 +38,4 @@ Permisos privados `0700`/`0600`; no imprimir claves, incluirlas en URLs ni usar 
 
 Una IP privada no es una credencial ni abre acceso desde Internet por publicarla. Tampoco sustituye autenticación o controles de red: un router/proxy u otra vía puede hacer alcanzable el servicio. Usar placeholders aquí minimiza datos del sitio y facilita reutilizar la guía; no es una medida de autenticación. [RFC1918](https://www.rfc-editor.org/rfc/rfc1918#section-3).
 
-No abrir puertos del router por documentar estos accesos. El formulario original de conexión qBit conserva la IP LAN como evidencia visual; los ejemplos textuales siguen usando placeholders.
+No abrir puertos del router por documentar estos accesos. Sustituir los placeholders por los valores de cada instalación.

@@ -17,7 +17,7 @@ La revisión cubre candidatos locales e índice Git; el historial requiere un an
 | Runtime multimedia | Appdata, descargas, datos, caches, estado torrent excluidos por `media-server/.gitignore`; las bases SQLite/DB están excluidas desde la raíz para todos los módulos |
 | `.env` y archivos `*.env` reales | Excluidos; `.env.example` y `*.env.example` siguen visibles como plantillas sin valores privados |
 | Claves/tokens detectables en texto público | No se encontraron otras coincidencias reales en la revisión; se inspeccionaron falsos positivos de rangos IP de código, fixtures y texto de ayuda. El detector es limitado, no prueba ausencia absoluta |
-| Contraseña real del ejemplo qBit | **Excepción pública deliberada, confirmada dos veces por el propietario**, incluida al preparar este repositorio público; ver abajo |
+| Ejemplo de acceso qBit | Valores sólo en su sección canónica; no duplicarlos ni reutilizarlos en otras instalaciones |
 | Capturas | Las nuevas capturas multimedia se revisan visualmente; no basta el preflight textual. Se conservan los formularios originales con valores enmascarados y las excepciones específicas indicadas debajo; no se regeneran imágenes como evidencia |
 | PDF de consulta | Conservado por indicación del usuario como documento público de terceros; origen indicado en [catálogo](../resources/sources.md). No confundirlo con inventarios privados ni atribuirle nuestra licenciaMIT |
 | Topología, versiones, puertos y modelos de hardware | Datos descriptivos publicados intencionalmente para reproducibilidad. No son contraseñas, pero revelan características del laboratorio; no demuestran filtrado o ausencia de exposiciónWAN |
@@ -27,12 +27,11 @@ Los binarios no los analiza el preflight textual; futuras capturas o cambios req
 
 ## Explicit Public Exceptions
 
-1. **[Ejemplo qBittorrent](../media-server/docs/qbittorrent.md#laboratory-login-example):** contiene la credencial real elegida para este laboratorio. El propietario pidió conservarla también en GitHub público después de ofrecer trasladarla a privado. Quien lea el repo podrá conocerla y quien tenga acceso al servicio podría probarla. No reutilizarla en otros servicios ni afirmar que el repositorio está libre de credenciales reales. No se repite el valor en scripts, Compose, JSON, esta guía ni informes de escaneo.
-2. **[Formulario qBit aprobado](../media-server/docs/radarr.md#73-radarr--qbittorrent):** imagen original con IP LAN específica. Una IP privada no autentica por sí sola ni es globalmente enrutable, pero revela parte del mapa. El texto reutilizable y el catálogo mantienen `<IP_DE_LA_VM>`.
-3. **[Formulario de torrent manual](../media-server/docs/workflow.md#worked-example-manual-season):** la captura completa original se conserva por elección explícita del propietario, en lugar de recortes. Muestra nombre/hash del torrent del ejemplo; no son credenciales de autenticación. Excepción limitada a esa imagen, no a publicar una colección ni otros hashes.
-4. **Material de terceros:** el PDF aportado se mantiene como referencia pública por indicación del usuario. Se preserva su autoría; no se declara bajo MIT ni se inventa una licencia original. Revisar los términos del autor si se necesita reutilizarlo aparte.
+1. **[Ejemplo qBittorrent](../media-server/docs/qbittorrent.md#laboratory-login-example):** ilustra los campos de acceso. Elegir contraseñas únicas; no reutilizar los valores publicados ni repetirlos en scripts, Compose, JSON o informes de escaneo.
+2. **[Formulario de torrent manual](../media-server/docs/workflow.md#worked-example-manual-season):** la captura completa original se conserva por elección explícita del propietario, en lugar de recortes. Muestra nombre/hash del torrent del ejemplo; no son credenciales de autenticación. Excepción limitada a esa imagen, no a publicar una colección ni otros hashes.
+3. **Material de terceros:** el PDF aportado se mantiene como referencia pública por indicación del usuario. Se preserva su autoría; no se declara bajo MIT ni se inventa una licencia original. Revisar los términos del autor si se necesita reutilizarlo aparte.
 
-La primera excepción no permite publicar otras contraseñas, API keys, cookies, hashes de autenticación ni inventarios. Un `.gitignore` ignora archivos completos, no un campo dentro de una guía; por eso no sirve para ocultar esa contraseña y conservar el resto del mismo archivo.
+El ejemplo no permite publicar contraseñas propias, API keys, cookies, hashes de autenticación ni inventarios. Un `.gitignore` ignora archivos completos, no campos individuales dentro de una guía.
 
 ## Ignore Ownership
 
@@ -54,7 +53,7 @@ python3 scripts/check-publication.py --acknowledge-public-lab-password
 sh scripts/run-tests.sh
 ```
 
-En el entorno Codex envolver los comandos con `rtk proxy` según las instrucciones locales. La opción de reconocimiento es necesaria mientras el ejemplo real permanezca; **sin ella el preflight bloquea esa credencial**. No poner su valor en argumentos.
+En el entorno Codex envolver los comandos con `rtk proxy` según las instrucciones locales. La opción de reconocimiento es necesaria mientras la tabla del ejemplo permanezca; **sin ella el preflight bloquea esos valores**. No ponerlos en argumentos.
 
 El script usa metadatos Git descartables fuera del proyecto para comprobar las reglas reales, sin inicializar esta carpeta ni depender de ignores globales del autor. Revisa candidatos de texto, patrones comunes y credenciales literales en configuraciones/tablas. Si existe Git, alerta archivos ya seguidos a pesar del ignore y examina también blobs del índice para detectar secretos staged aunque el archivo de trabajo se haya limpiado. Nunca imprime los valores encontrados.
 

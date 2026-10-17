@@ -136,7 +136,7 @@ The collector streams Python over SSH without installing anything on Proxmox. It
 
 Do not commit private keys, tokens, raw configuration exports, VM backups, personal files or unreviewed inventories. The root ignore rules protect every module; workload-specific runtime rules belong to that module's `.gitignore`. Keep `.env.example`, manifests, image locks, scripts, tests and reviewed docs visible.
 
-**Owner-approved exception:** the [qBittorrent lab login example](media-server/docs/qbittorrent.md#laboratory-login-example) is the actual lab credential, deliberately kept public by the owner. Do not reuse it elsewhere or treat it as secret. The approved Radarr form also shows a private LAN address; reusable URLs use placeholders. This repository therefore must not be described as containing no real credentials.
+See the [qBittorrent lab login example](media-server/docs/qbittorrent.md#laboratory-login-example) for the login fields. Choose a unique password for each installation; do not reuse documented example credentials.
 
 Before the first commit/push, run the local preflight and review the [publication checklist](docs/publication-guide.md):
 
