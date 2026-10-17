@@ -1,0 +1,41 @@
+[Unit]
+Description=Guarded torrent cleanup (observation only until explicitly enabled)
+Wants=network-online.target
+After=network-online.target docker.service
+RequiresMountsFor=/data
+ConditionPathIsMountPoint=/data
+
+[Service]
+Type=oneshot
+DynamicUser=yes
+SupplementaryGroups=media
+LoadCredential=settings.json:/etc/media-server/torrent-cleanup/credentials.json
+LoadCredential=storage.json:/var/lib/media-server/provisioning/storage.json
+StateDirectory=torrent-cleanup
+StateDirectoryMode=0700
+LogsDirectory=torrent-cleanup
+LogsDirectoryMode=0700
+ExecStartPre=+/usr/local/sbin/check-media-storage
+ExecStart=/usr/bin/python3 /usr/local/libexec/media-server/torrent-cleanup.py --config %d/settings.json
+TimeoutStartSec=10min
+UMask=0077
+Nice=10
+CPUWeight=10
+CPUQuota=25%
+MemoryMax=192M
+TasksMax=16
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/data
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+StandardOutput=journal
+StandardError=journal

@@ -1,0 +1,11 @@
+[Unit]
+Description=Evaluate torrent cleanup every six hours
+
+[Timer]
+OnCalendar=*-*-* 00,06,12,18:00:00
+AccuracySec=5min
+Persistent=yes
+Unit=torrent-cleanup.service
+
+[Install]
+WantedBy=timers.target

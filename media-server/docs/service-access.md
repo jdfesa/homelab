@@ -23,7 +23,7 @@ Las URLs reales permanecen en `.local/service-access.md`, fuera de Git. No inclu
 
 Los `.env` de Compose **sí se conservan**: contienen la IP de publicación y la imagen fijada. No configuran por sí solos el login de la aplicación ni mantienen la sesión del navegador. [Docker](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/).
 
-**No se añade por ahora otro almacén `.env` de credenciales ni un cliente API.** Duplicaría claves sin acelerar la recuperación. Las aplicaciones ya conservan sus ajustes/credenciales en appdata privado; lo importante es respaldarlo coherentemente. [Orden y recuperación](../RUNBOOK.md).
+No añadir un almacén `.env` genérico de credenciales para acelerar la recuperación. Las aplicaciones ya conservan sus ajustes en appdata privado; respaldarlo coherentemente. La [limpieza periódica de torrents](torrent-cleanup.md) usa un cliente acotado y un archivo privado propio para esa necesidad repetitiva, **separado** de los `.env` de despliegue. [Orden y recuperación](../RUNBOOK.md).
 
 Git excluye `.local/`, `.env`, `.env.*` y `*.env`; permite `.env.example` y `*.env.example` fuera de carpetas privadas. Las plantillas no deben contener secretos. Antes de escribir un archivo privado, comprobar desde la raíz:
 

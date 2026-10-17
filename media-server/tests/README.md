@@ -25,6 +25,7 @@ Requieren Python3 estándar y Bash; no root, SSH, Docker ni RTK instalado para e
 | `test_samba.py` | Sólo Movies/TV, autenticación SMB3, allowlist LAN, permisos y guarda de montaje; no contacta el servidor |
 | `test_qbittorrent.py` | Montajes mínimos, WebUI/auth, capacidades verificadas separadas de límites y ausencia de inventarios temporales |
 | `test_qbittorrent_reset.py` | Entrada privada, formato PBKDF2, sólo dos claves modificables, login y rechazo de estado no esperado |
+| `test_torrent_cleanup.py` | Clientes falsos, preservación de completos, ventanas de progreso y gracia semanal, migración, stop/revalidación de lentos activos, rutas/hardlinks, autenticación, simulación, auditoría/estado, errores/pending y unidades sin borrado habilitado |
 | `test_prowlarr.py` | Config NVMe sin HDD, autenticación nativa y fuentes guardadas |
 | `test_radarr.py` | Bind común, imagen exacta, perfil HD equivalente, idiomas y renombrado |
 | `test_sonarr.py` | Imagen exacta, bind común, Forms nativo, perfil HD, conexiones y separación de aceptación pendiente |

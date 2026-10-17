@@ -98,6 +98,8 @@ Operar desde `/srv/media-server/compose/qbittorrent/` dentro de Debian. Antes de
 
 La política de seeding/limpieza debe conservar biblioteca y torrents activos. No borrar archivos directamente para liberar espacio sin revisar los enlaces y el gestor. Restauración independiente aún no probada.
 
+El mantenimiento periódico tiene una [receta canónica de limpieza](torrent-cleanup.md): dos reglas, auditoría privada, timer de seis horas y simulación por defecto. No confundir código probado localmente con un timer instalado o borrado habilitado en la VM.
+
 ## Primary Sources
 
 - [LinuxServer qBittorrent](https://docs.linuxserver.io/images/docker-qbittorrent/).

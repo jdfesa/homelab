@@ -17,8 +17,13 @@ Servidor multimedia sobre Debian con servicios multimedia Docker Compose indepen
 | Copiar películas/series que ya existen en otro equipo | **Finder → SMB Movies/TV**, TCP445; [guía](docs/samba.md) |
 | Revisar idiomas y subtítulos faltantes | **Bazarr**, TCP6767; EN/ES existentes y búsqueda automática de faltantes |
 | Ver contenido de la biblioteca | **Jellyfin**, TCP8096 |
+| Consultar la limpieza automática y sus motivos | **Auditoría privada del mantenimiento**, [guía](docs/torrent-cleanup.md) |
 
 Prowlarr y qBittorrent trabajan detrás del gestor para adquirir contenido nuevo. Una colección existente entra por SMB sin pasar por ellos. El buscador de Jellyfin consulta la biblioteca existente.
+
+### Acquisition and Playback
+
+Este es el recorrido del contenido. La limpieza periódica es un proceso independiente, no un requisito para reproducir; se detalla en el [flujo de mantenimiento](#periodic-maintenance).
 
 ```mermaid
 flowchart TB
@@ -62,6 +67,57 @@ flowchart TB
 ```
 
 El recorrido de películas está probado. Sonarr ya adopta descargas existentes con hardlinks y Jellyfin detecta episodios nuevos; falta validar una adquisición nueva iniciada por Sonarr. Las líneas discontinuas representan capacidades pendientes; Bazarr busca EN/ES faltantes y avisa a Jellyfin; descarga externa y refresco automático de episodio comprobados, sujetos a disponibilidad/cuotas. El contenido copiado por SMB requiere registro adicional en el gestor para aparecer en Bazarr. Prowlarr devuelve resultados/enlaces; los videos llegan desde los peers. [Uso cotidiano](docs/workflow.md) · [Mapa técnico](docs/stack-plan.md).
+
+### Periodic Maintenance
+
+Un único `torrent-cleanup.py` evalúa dos reglas mediante una unidad systemd finita. No es otro contenedor ni un proceso Python residente. El timer está habilitado con acciones reales; conserva las muestras entre revisiones y sólo actúa cuando se cumplen los plazos y las guardas.
+
+```mermaid
+flowchart TB
+    cleanupTimer["torrent-cleanup.timer: cada 6 h"]
+    mountGuard["check-media-storage: UUID, ext4 y montaje RW"]
+    blocked["No iniciar limpieza; revisar journal"]
+    cleanupJob["`torrent-cleanup.service ejecuta torrent-cleanup.py
+Proceso finito con dos reglas activas`"]
+    apiInputs["`APIs: qBittorrent, Radarr, Sonarr y Jellyfin
+Estado, archivos, importaciones y detección`"]
+    samples[("state.json: muestras, gracia y marcas pending")]
+    completeRule["`Completos: 100% y al menos 1 h
+Importación, hardlinks y Jellyfin verificados`"]
+    slowRule["`Lentos: avance menor de 5 puntos en 24 h observadas
+Desde el 90%: al menos 7 días de protección`"]
+    entryOnly["API qBit: retirar entrada; conservar archivos"]
+    partialGuards["`Excluir paquetes mixtos y contenido compartido
+Detener y revalidar progreso y protecciones`"]
+    blockRelease["API Arr: bloquear esa entrega sin buscar reemplazo"]
+    deletePartial["API qBit: retirar entrada y borrar parciales"]
+    retain["No es candidato: conservar y seguir observando"]
+    audit[("audit.jsonl: motivos, intención y resultado o pending")]
+    cleanupTimer --> mountGuard
+    mountGuard -->|"Montaje correcto"| cleanupJob
+    mountGuard -->|"Falla la guarda"| blocked
+    apiInputs -->|"Datos de control según la regla, no video"| cleanupJob
+    cleanupJob <-->|"Estado persistente"| samples
+    cleanupJob --> completeRule
+    cleanupJob --> slowRule
+    cleanupJob -->|"Sin historia suficiente, gracia o exclusiones"| retain
+    completeRule --> entryOnly
+    slowRule --> partialGuards
+    partialGuards --> blockRelease
+    blockRelease --> deletePartial
+    cleanupJob -->|"Registrar antes de cualquier mutación"| audit
+    entryOnly -->|"Confirmar o requerir revisión"| audit
+    deletePartial -->|"Confirmar o requerir revisión"| audit
+    retain -->|"Registrar por qué se conserva"| audit
+```
+
+Las flechas describen el **flujo configurado**, no que todos los casos hayan sucedido. Arranque/migración y activación están comprobados; las ventanas reales de 24 h/gracia semanal y el borrado de parciales aún requieren validación. La biblioteca nunca es objetivo del borrado. Una revalidación fallida puede dejar una acción `pending` para revisión, sin reintento automático. [Reglas, excepciones y auditoría: guía canónica](docs/torrent-cleanup.md).
+
+| Recurso | Función en operación |
+| --- | --- |
+| [check-media-storage.py](scripts/check-media-storage.py), instalado como `check-media-storage` | Guarda de lectura previa al arranque: exige el HDD correcto; no prepara ni formatea discos. |
+| [torrent-cleanup.py](scripts/torrent-cleanup.py) y [unidades systemd](config/torrent-cleanup/) | Evalúan ambas políticas cada seis horas, conservan muestras y registran motivos/resultados. El borrado se solicita por API, no escribiendo desde Python a la biblioteca. |
+| [Instaladores y herramientas administrativas](scripts/README.md) | Primer despliegue o diagnóstico manual cuando corresponde; no forman parte del ciclo periódico. Los ayudantes privados de una intervención tampoco son servicios permanentes. |
 
 ## Storage and Boundaries
 

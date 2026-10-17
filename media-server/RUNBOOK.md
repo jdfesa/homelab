@@ -44,7 +44,7 @@ Respaldar bases de datos coherentemente, conservar propietarios/permisos y hardl
 
 ## Environment and Git Rules
 
-- **Conservar los `.env` de Compose:** ya sirven para IP e imagen. Plantillas sin secretos en Git; valores reales privados. **No añadir ahora otros `.env` de acceso ni un cliente API:** no aceleran esta reconstrucción y duplicarían credenciales. Reconsiderarlo sólo con una necesidad repetitiva concreta.
+- **Conservar los `.env` de Compose:** sirven para IP e imagen, no para login. No añadir un almacén genérico de accesos para la reconstrucción. La [limpieza periódica de torrents](docs/torrent-cleanup.md) tiene una necesidad repetitiva concreta y usa su propio archivo privado de credenciales, separado de Compose; no es parte de los instaladores de primer arranque.
 - En Git: `compose/`, `scripts/`, `config/`, políticas, guías y capturas útiles. **Fuera:** `.local/`, `.env` reales, claves/cookies, DB/appdata, backups, torrents, descargas, videos y `tmp/`. [Reglas raíz](../.gitignore) y [del módulo](.gitignore).
 - Antes de guardar secretos, comprobar ruta ignorada y no seguida. `.gitignore` no cifra ni respalda archivos y no oculta lo ya versionado. [Accesos y comprobación](docs/service-access.md#environment-files-and-login-sessions).
 - No cambiar rutas al restaurar: `/data/downloads` y `/data/media`; gestores con bind común para hardlinks. No usar descargas como biblioteca Jellyfin ni repetir formateos. DSM queda fuera.
