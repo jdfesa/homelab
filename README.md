@@ -2,7 +2,7 @@
 
 A gradually evolving home server, built to make everyday life easier—not to run as many services as possible.
 
-**Status:** Modular Proxmox lab; DSM inventory and media automation documented; real media acceptance still pending · **Last reviewed:** October 16, 2026.
+**Status:** Modular Proxmox lab; DSM inventory and media automation documented; movie import/playback verified; remaining automation tracked in its module · **Last reviewed:** October 17, 2026.
 
 This is the lab index, not a combined installation guide. Each VM or LXC owns its configuration, roadmap, procedures, scripts and tests in a separate directory with a README. Only shared inventory, conventions and tooling live at this level.
 
@@ -29,35 +29,43 @@ flowchart TB
             dsm["DSM: internal services not yet inventoried"]
         end
         subgraph mediaVm["VM 102 - media-server - Debian"]
-            prowlarr["Prowlarr :9696 - Knaben configured"]
-            radarr["Radarr :7878 - profiles and real movie test pending"]
+            prowlarr["Prowlarr :9696 - sources configured"]
+            radarr["Radarr :7878 - profiles and hardlink import verified"]
             qbittorrent["qBittorrent :8080 - downloader configured"]
-            jellyfin["Jellyfin :8096 - libraries configured; playback pending"]
-            sonarr["Sonarr - planned, not deployed"]
-            subtitles["ES / EN subtitle manager - planned, not selected"]
+            jellyfin["Jellyfin :8096 - tablet playback verified"]
+            sonarr["Sonarr :8989 - existing download hardlink import verified"]
+            bazarr["Bazarr :6767 - EN / ES subtitles"]
+            samba["Samba :445 - Movies / TV library shares"]
             prowlarr -->|"Full Sync verified"| radarr
-            radarr -->|"Test and saved Enabled client confirmed"| qbittorrent
-            prowlarr -.->|"Future integration"| sonarr
-            sonarr -.->|"Future series downloads"| qbittorrent
-            subtitles -.->|"Future selectable subtitles"| jellyfin
+            radarr -->|"Movie acquisition verified"| qbittorrent
+            prowlarr -->|"Full Sync verified"| sonarr
+            sonarr -->|"Completed handling ON; new acquisition pending"| qbittorrent
+            radarr -->|"Managed movie metadata"| bazarr
+            sonarr -->|"Managed series metadata"| bazarr
         end
         dsmDisk["DSM HDD - separate ownership; do not touch"]
         mediaDisk["Media HDD - /data/downloads and /data/media"]
         dsm --- dsmDisk
-        qbittorrent -.->|"Real download/import still to test"| mediaDisk
+        qbittorrent -->|"Downloads"| mediaDisk
+        radarr -->|"Library import by hardlink"| mediaDisk
+        sonarr -->|"Existing download import by hardlink verified"| mediaDisk
+        samba -->|"Copy existing media into library"| mediaDisk
+        mediaDisk -->|"Existing subtitle inventory"| bazarr
+        bazarr -->|"Missing EN/ES downloads; provider quotas apply"| mediaDisk
+        bazarr -->|"Episode refresh after subtitle changes verified"| jellyfin
         mediaDisk -->|"Library mounted read-only"| jellyfin
     end
     classDef configured fill:#173b2b,stroke:#3fb950,color:#ffffff
     classDef partial fill:#483916,stroke:#d29922,color:#ffffff
     classDef planned fill:#30363d,stroke:#8b949e,color:#ffffff,stroke-dasharray:5 5
     classDef storage fill:#15354c,stroke:#58a6ff,color:#ffffff
-    class prowlarr,qbittorrent configured
-    class dsm,radarr,jellyfin partial
-    class sonarr,subtitles planned
+    class prowlarr,qbittorrent,radarr,samba configured
+    class dsm,jellyfin,bazarr partial
+    class sonarr partial
     class dsmDisk,mediaDisk storage
 ```
 
-**Legend:** green = configured component/connection, not end-to-end acceptance; amber = existing workload with remaining documentation/configuration/acceptance; gray = future; blue = separate storage. Dashed arrows are planned or untested real workflows. Radarr, not qBittorrent or Jellyfin, will import movies into the library; see the [detailed media workflow](media-server/README.md#workflow-at-a-glance). The future subtitle arrow is conceptual, not a configured API connection.
+**Legend:** green = configured component/connection, not end-to-end acceptance; amber = existing workload with remaining documentation/configuration/acceptance; gray = future; blue = separate storage. Dashed arrows are planned or untested real workflows. Radarr, not qBittorrent or Jellyfin, imports movies into the library; see the [detailed media workflow](media-server/README.md#workflow). Bazarr inventories EN/ES through Radarr/Sonarr, searches missing subtitles via OpenSubtitles.com and notifies Jellyfin; automatic episode refresh is verified. Provider availability/quotas and unmanaged SMB collections remain limits.
 
 No LXC workload is configured/documented yet. A legacy test guest is intentionally omitted from this map and module list; its historical resource record remains in the shared inventory. No guest was deleted or changed.
 
@@ -66,7 +74,7 @@ No LXC workload is configured/documented yet. A legacy test guest is intentional
 | Module | Purpose | Verified scope |
 | --- | --- | --- |
 | [dsm](dsm/README.md) | Existing NAS VM; preserve its data | VM resources observed; internal version, packages/shares and backup acceptance not inventoried |
-| [media-server](media-server/README.md) | Personal movie/TV automation and playback | Four Compose services deployed; Prowlarr/Knaben → Radarr verified; Radarr → qBit Test + Save confirmed by UI; profiles/import/playback pending |
+| [media-server](media-server/README.md) | Personal movie/TV automation and playback | Six Compose services plus native Samba; Sonarr adoption/hardlinks and episode monitor verified; new series acquisition pending; movie acquisition/hardlink import and tablet playback verified; Bazarr EN/ES automatic searches and episode refresh active |
 
 Read a module's README before running its scripts. DSM currently has an honest inventory/remaining-work entry, not an invented installer. No empty LXC or experimental-guest modules are created merely to fill a template. Host-wide facts belong in shared docs; workload procedures have one source of truth inside their module. Update this map/table when a workload is added, removed or changes verified status; update service-level details in its own module.
 

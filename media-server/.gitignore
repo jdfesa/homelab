@@ -12,3 +12,13 @@ exports/
 BT_backup/
 *.torrent
 *.fastresume
+
+# Copias de configuración nativa y passdb: pueden contener claves o hashes.
+# Publicar sólo las plantillas *.example, nunca exports del runtime.
+config.xml
+config.yaml
+smb.conf
+*.tdb
+*.tdb-*
+*.ldb
+*.ldb-*

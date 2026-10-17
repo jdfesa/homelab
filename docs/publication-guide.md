@@ -1,12 +1,12 @@
 # Public Repository Guide
 
-**Status:** Reviewed publication policy and initial snapshot · **Remote:** [jdfesa/homelab](https://github.com/jdfesa/homelab), branch `main` · **Reviewed:** 2026-10-16.
+**Status:** Publication safeguards and media-server review · **Remote:** [jdfesa/homelab](https://github.com/jdfesa/homelab), branch `main` · **Reviewed:** 2026-10-17.
 
 ## Scope and Ownership
 
 Un servidor físico Proxmox, **un repositorio `homelab`**. El README raíz muestra hardware, mapa e índice; cada VM/LXC tiene carpeta propia. DSM y media-server son los dos huéspedes elegidos para el mapa. No se añade un LXC ficticio ni la VM experimental al mapa de servicios permanentes; el inventario histórico no se borra.
 
-La revisión es de los archivos locales candidatos a Git, no una auditoría de exposición de red, autorización para modificar servidores ni garantía de seguridad total. No se cambió la contraseña de ningún servicio. Al revisar, la raíz no tenía `.git`: no había índice/historial/remoto de este proyecto que limpiar.
+La revisión cubre candidatos locales e índice Git; el historial requiere un análisis separado. No es una auditoría de exposición de red, autorización para modificar servidores ni garantía de seguridad total. No se cambia la contraseña de un servicio por hacer una revisión documental.
 
 ## Review Findings
 
@@ -18,18 +18,19 @@ La revisión es de los archivos locales candidatos a Git, no una auditoría de e
 | `.env` y archivos `*.env` reales | Excluidos; `.env.example` y `*.env.example` siguen visibles como plantillas sin valores privados |
 | Claves/tokens detectables en texto público | No se encontraron otras coincidencias reales en la revisión; se inspeccionaron falsos positivos de rangos IP de código, fixtures y texto de ayuda. El detector es limitado, no prueba ausencia absoluta |
 | Contraseña real del ejemplo qBit | **Excepción pública deliberada, confirmada dos veces por el propietario**, incluida al preparar este repositorio público; ver abajo |
-| Capturas |29PNG existentes revisados con OCR heurístico y referencias visuales aprobadas; sin claves visibles detectadas. Formulario qBit conserva una IP LAN por solicitud de inclusión; la ayuda de Prowlarr contiene además una IP de ejemplo. No se modificaron imágenes en esta revisión |
+| Capturas | Las nuevas capturas multimedia se revisan visualmente; no basta el preflight textual. Se conservan los formularios originales con valores enmascarados y las excepciones específicas indicadas debajo; no se regeneran imágenes como evidencia |
 | PDF de consulta | Conservado por indicación del usuario como documento público de terceros; origen indicado en [catálogo](../resources/sources.md). No confundirlo con inventarios privados ni atribuirle nuestra licenciaMIT |
 | Topología, versiones, puertos y modelos de hardware | Datos descriptivos publicados intencionalmente para reproducibilidad. No son contraseñas, pero revelan características del laboratorio; no demuestran filtrado o ausencia de exposiciónWAN |
 | Artefactos del SO/editor | `.DS_Store`, bytecode/caches Python, virtualenvs y node_modules excluidos; no excluir indiscriminadamente JSON/YAML/PNG/PDF y perder documentación útil |
 
-No se instaló ni ejecutó un detector especializado de historial. Los29PNG/1PDF no los analiza el preflight textual; futuras capturas o cambios requieren revisión visual/OCR de nuevo. Ni una captura redacted ni un chequeo verde prueban una descarga/importación/reproducción real.
+Los binarios no los analiza el preflight textual; futuras capturas o cambios requieren revisión visual/OCR de nuevo. Complementar con un detector especializado de secretos, incluyendo los commits que se van a publicar. Ni una captura redacted ni un chequeo verde prueban una descarga/importación/reproducción real. Los resultados de ejecución se guardan en el área privada, no como inventario público.
 
 ## Explicit Public Exceptions
 
 1. **[Ejemplo qBittorrent](../media-server/docs/qbittorrent.md#laboratory-login-example):** contiene la credencial real elegida para este laboratorio. El propietario pidió conservarla también en GitHub público después de ofrecer trasladarla a privado. Quien lea el repo podrá conocerla y quien tenga acceso al servicio podría probarla. No reutilizarla en otros servicios ni afirmar que el repositorio está libre de credenciales reales. No se repite el valor en scripts, Compose, JSON, esta guía ni informes de escaneo.
-2. **[Formulario qBit aprobado](../media-server/docs/radarr.md#reviewed-qbittorrent-client-form--test-passed):** imagen original con IP LAN específica. Una IP privada no autentica por sí sola ni es globalmente enrutable, pero revela parte del mapa. El texto reutilizable y el catálogo mantienen `<IP_DE_LA_VM>`.
-3. **Material de terceros:** el PDF aportado se mantiene como referencia pública por indicación del usuario. Se preserva su autoría; no se declara bajo MIT ni se inventa una licencia original. Revisar los términos del autor si se necesita reutilizarlo aparte.
+2. **[Formulario qBit aprobado](../media-server/docs/radarr.md#73-radarr--qbittorrent):** imagen original con IP LAN específica. Una IP privada no autentica por sí sola ni es globalmente enrutable, pero revela parte del mapa. El texto reutilizable y el catálogo mantienen `<IP_DE_LA_VM>`.
+3. **[Formulario de torrent manual](../media-server/docs/workflow.md#worked-example-manual-season):** la captura completa original se conserva por elección explícita del propietario, en lugar de recortes. Muestra nombre/hash del torrent del ejemplo; no son credenciales de autenticación. Excepción limitada a esa imagen, no a publicar una colección ni otros hashes.
+4. **Material de terceros:** el PDF aportado se mantiene como referencia pública por indicación del usuario. Se preserva su autoría; no se declara bajo MIT ni se inventa una licencia original. Revisar los términos del autor si se necesita reutilizarlo aparte.
 
 La primera excepción no permite publicar otras contraseñas, API keys, cookies, hashes de autenticación ni inventarios. Un `.gitignore` ignora archivos completos, no un campo dentro de una guía; por eso no sirve para ocultar esa contraseña y conservar el resto del mismo archivo.
 
@@ -37,6 +38,7 @@ La primera excepción no permite publicar otras contraseñas, API keys, cookies,
 
 - **[Raíz](../.gitignore):** reglas comunes heredables para `.local`, private/secrets/backups/exports/tmp, claves, entornos reales, bases SQLite/DB, dumps/discos virtuales, caches y temporales.
 - **[Media server](../media-server/.gitignore):** runtime y formatos específicos de sus aplicaciones.
+- Las copias nativas `config.xml`, `config.yaml`, `smb.conf` y bases Samba `*.tdb`/`*.ldb` también se ignoran en media-server; pueden contener claves/hashes. La plantilla `smb.conf.example` permanece visible.
 - **DSM:** hereda las reglas comunes; no necesita duplicarlas en otro `.gitignore` sin un formato propio que añadir.
 - No crear un `.gitignore` en cada subcarpeta por rutina. Añadir uno cuando haya reglas específicas; verificar que las plantillas/manifiestos/locks/guías sigan visibles.
 - No usar `git add -f` para saltar estas guardas. Las reglas no sustituyen revisar contenidos.
@@ -58,6 +60,14 @@ El script usa metadatos Git descartables fuera del proyecto para comprobar las r
 
 **Límites:** no analiza historial de commits, formatos binarios, todas las variantes de secretos ni exposición del servidor. Reporta binarios para revisión manual. El flag sólo reconoce la tabla de contraseña del apartado canónico qBit, no desactiva las demás comprobaciones.
 
+Con Gitleaks instalado, comprobar también el historial **después de los commits y antes del push**:
+
+```sh
+gitleaks git . --log-opts=--all --redact=100
+```
+
+Un resultado sin hallazgos no invalida las excepciones públicas conocidas: los detectores no reconocen todas las contraseñas genéricas ni leen los pixels de las capturas. No ejecutar un escaneo de todo el directorio privado ni subirlo a un servicio externo para validar archivos que no van a publicarse.
+
 ## First Publication Checklist
 
 1. Releer hallazgos/excepciones y revisar cambios de texto, capturas y metadata; no publicar evidencia privada ni credenciales distintas de la excepción.
@@ -73,19 +83,19 @@ El script usa metadatos Git descartables fuera del proyecto para comprobar las r
 5. Preparar el índice y **revisarlo antes de confirmar/publicar**:
 
    ```sh
-   git add .
+   git add -- media-server/
    python3 scripts/check-publication.py --acknowledge-public-lab-password
    git diff --cached --stat
    git diff --cached --check
    git diff --cached
    ```
 
-   El diff incluye intencionalmente el ejemplo qBit, no debería incluir otras claves. No pegar diffs no revisados en chats/issues. Complementar con un detector de secretos especializado; revisar historial si ya hay commits. No confundir estos comandos documentados con acciones ejecutadas por esta preparación.
+   Añadir soporte raíz relacionado sólo tras revisarlo, con rutas explícitas; no usar `git add -f`. El diff incluye intencionalmente el ejemplo qBit, no debería incluir otras claves. No pegar diffs no revisados en chats/issues. Complementar con un detector de secretos especializado; revisar historial si ya hay commits. No confundir estos comandos documentados con acciones ejecutadas por esta preparación.
 
 6. Comprobar identidad Git local, licencia, contenido y destino; entonces crear el commit. No cambiar identidad global automáticamente:
 
    ```sh
-   git commit -m "Document homelab architecture and reproducible media setup"
+   git commit -m "docs(media-server): document verified workflows and recovery"
    ```
 
 7. Crear un repositorio **público vacío** en la cuenta elegida y agregar su URL por SSH o HTTPS sin tokens incrustados. Ejemplo a sustituir, sólo si no hay remote:

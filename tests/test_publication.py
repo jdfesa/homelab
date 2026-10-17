@@ -21,12 +21,33 @@ class PublicationTests(unittest.TestCase):
                    "future-vm/id_ed25519", "future-vm/client.ovpn", "nested/.DS_Store",
                    "media-server/appdata/test.db", "media-server/state.db-wal", "media-server/movie.torrent",
                    "media-server/state.fastresume"]
+        ignored.extend(["tmp/media-server/credentials/opensubtitles.json",
+                        "media-server/.local/sonarr-config.xml",
+                        "media-server/config.xml", "media-server/config.yaml",
+                        "media-server/smb.conf", "media-server/passdb.tdb",
+                        "media-server/secrets.ldb", "media-server/passdb.tdb-wal"])
         visible = ["README.md", "dsm/README.md", "media-server/.env.example",
                    "future-vm/service.env.example", "media-server/compose/radarr/.env.example",
                    "media-server/compose/radarr/compose.yaml", "media-server/compose/radarr/image-lock.json",
                    "resources/ebook-proxmox.pdf", "media-server/docs/qbittorrent.md"]
+        visible.append("media-server/config/samba/smb.conf.example")
         with PUBLICATION.portable_view(ROOT) as view:
             self.assertEqual(PUBLICATION.ignored_paths(ROOT, view, ignored + visible), set(ignored))
+
+    def test_per_service_access_files_are_ignored_before_creation(self):
+        services = ('jellyfin', 'qbittorrent', 'prowlarr', 'radarr', 'bazarr', 'sonarr')
+        ignored = []
+        templates = []
+        for service in services:
+            ignored.extend([
+                f'media-server/.local/access/{service}.env',
+                f'media-server/.local/access/{service}.env.example',
+                f'media-server/compose/{service}/.env',
+                f'media-server/compose/{service}/credentials.env',
+            ])
+            templates.append(f'media-server/compose/{service}/.env.example')
+        with PUBLICATION.portable_view(ROOT) as view:
+            self.assertEqual(PUBLICATION.ignored_paths(ROOT, view, ignored + templates), set(ignored))
 
     def test_literal_config_detection_withholds_secret_and_accepts_placeholders(self):
         value = "synthetic-not-a-real-credential"
@@ -103,8 +124,11 @@ class PublicationTests(unittest.TestCase):
     def test_root_map_has_one_host_two_workloads_and_no_experimental_guest(self):
         readme = (ROOT / "README.md").read_text()
         diagram = readme.split("```mermaid\n", 1)[1].split("```", 1)[0]
-        for label in ["Proxmox VE - one physical host", "VM 100 - DSM", "VM 102 - media-server", "not deployed"]:
+        for label in ["Proxmox VE - one physical host", "VM 100 - DSM", "VM 102 - media-server",
+                      "Sonarr :8989", "new acquisition pending", "Samba :445",
+                      "Existing download import by hardlink verified"]:
             self.assertIn(label, diagram)
+        self.assertNotIn('Sonarr - planned, not deployed', diagram)
         for excluded in ["WinXP", "Windows XP", "VM 101"]:
             self.assertNotIn(excluded, diagram)
         self.assertTrue((ROOT / "dsm/README.md").is_file())
