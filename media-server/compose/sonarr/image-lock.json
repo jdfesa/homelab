@@ -1,0 +1,11 @@
+{
+  "reviewed_on": "2026-10-17",
+  "release": "4.0.20.3014",
+  "release_source": "https://github.com/Sonarr/Sonarr/releases/tag/v4.0.20.3014",
+  "image_source": "https://github.com/linuxserver/docker-sonarr",
+  "image": "lscr.io/linuxserver/sonarr@sha256:aae7c64ef13a4055c5b00607d5f2a2997d5a03304eb96e1930f9665728192e75",
+  "platform": "linux/amd64",
+  "image_version_label": "4.0.20.3014-ls329",
+  "image_revision": "aee277b39f8f8e34eec5ccc9cb5a51a5d22d7bcf",
+  "automatic_updates": false
+}
