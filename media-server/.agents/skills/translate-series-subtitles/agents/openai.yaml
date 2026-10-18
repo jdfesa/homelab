@@ -1,0 +1,4 @@
+interface:
+  display_name: "Translate Series Subtitles"
+  short_description: "Translate English SRT seasons in verified Google batches"
+  default_prompt: "Use $translate-series-subtitles to translate a season's English SRT files into Spanish in batches of at most 20."

@@ -23,6 +23,10 @@ class PublicationTests(unittest.TestCase):
                    "media-server/appdata/test.db", "media-server/state.db-wal", "media-server/movie.torrent",
                    "media-server/state.fastresume"]
         ignored.extend(["tmp/media-server/credentials/opensubtitles.json",
+                        "media-server/exports/subtitles/Example Series/Season 01/Example Series - S01E01.en.srt",
+                        "media-server/exports/subtitles/Example Series/extraction-report.json",
+                        "media-server/exports/subtitle-translations/Example Series/Season 01/run/manifest.json",
+                        "media-server/exports/subtitle-translations/Example Series/Season 01/run/batch-001/download.zip",
                         "media-server/.local/sonarr-config.xml",
                         "media-server/config.xml", "media-server/config.yaml",
                         "media-server/smb.conf", "media-server/passdb.tdb",
@@ -49,6 +53,24 @@ class PublicationTests(unittest.TestCase):
             templates.append(f'media-server/compose/{service}/.env.example')
         with PUBLICATION.portable_view(ROOT) as view:
             self.assertEqual(PUBLICATION.ignored_paths(ROOT, view, ignored + templates), set(ignored))
+
+    def test_media_subtitle_outputs_are_ignored_without_hiding_skill_source(self):
+        ignored = [
+            f"media-server/{folder}/Example.{extension}"
+            for folder in ("series/Season 01", "movies", "subtitle-work")
+            for extension in ("en.srt", "es.srt", "vtt", "ass", "ssa", "sub", "idx", "sup", "zip")
+        ]
+        ignored.extend([
+            "media-server/exports/subtitle-translations/Example Movie/manifest.json",
+            "media-server/exports/subtitle-translations/Example Movie/receipt.json",
+            "media-server/exports/subtitle-translations/Example Movie/browser-success.png",
+        ])
+        skill = "media-server/.agents/skills/translate-series-subtitles"
+        visible = [f"{skill}/SKILL.md", f"{skill}/agents/openai.yaml",
+                   f"{skill}/scripts/subtitle_batches.py",
+                   "media-server/scripts/extract-embedded-subtitles.py"]
+        with PUBLICATION.portable_view(ROOT) as view:
+            self.assertEqual(PUBLICATION.ignored_paths(ROOT, view, ignored + visible), set(ignored))
 
     def test_literal_config_detection_withholds_secret_and_accepts_placeholders(self):
         value = "synthetic-not-a-real-credential"

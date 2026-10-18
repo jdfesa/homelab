@@ -8,6 +8,17 @@ secrets/
 backups/
 exports/
 
+# Generated subtitle content and download archives are not repository sources.
+# Keep reports, manifests and other run artifacts under the ignored exports/.
+*.srt
+*.vtt
+*.ass
+*.ssa
+*.sub
+*.idx
+*.sup
+*.zip
+
 # Estado específico del cliente; las DB/SQLite se excluyen desde la raíz.
 BT_backup/
 *.torrent
