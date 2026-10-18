@@ -1,10 +1,10 @@
 # Hardware Inventory
 
-**Status:** Initial / Partial · **Observed:** 2026-10-14, zona horaria America/Argentina/Buenos_Aires.
+**Status:** Partial · **Observed:** 2026-10-14, zona horaria America/Argentina/Buenos_Aires · **Updated:** 2026-10-17.
 
-**Addendum 2026-10-15:** se conectó un segundo HDD, WDC WD20EZRZ-00Z5HB0 de 2 TB, asignado por `by-id` a `media-server` como `scsi1`. Tras autorización explícita recibió GPT/ext4 y montaje `/data` por UUID, comprobado tras reinicio. DSM mantiene su WD20EZRX sin cambios. Ver [Storage Guide](../media-server/docs/storage-guide.md) para estado/SMART; las tablas siguientes conservan la fotografía inicial del 14 de octubre.
+**Addendum 2026-10-15:** se conectó un segundo HDD, WDC WD20EZRZ-00Z5HB0 de 2 TB, asignado por `by-id` a `media-server` como `scsi1`. Tras autorización explícita recibió GPT/ext4 y montaje `/data` por UUID, comprobado tras reinicio. DSM mantiene su WD20EZRX sin cambios. Ver [Storage Guide](../media-server/docs/storage-guide.md) para estado/SMART; las tablas de almacenamiento, uso y salud siguientes conservan la fotografía inicial del 14 de octubre.
 
-Este documento describe únicamente el hardware conectado durante el relevamiento. Hay HDD adicionales pendientes de conectar; consultar [Planned Hardware](planned-hardware.md). Los valores de uso, temperatura y salud son una fotografía, no mediciones continuas.
+Este documento reúne el relevamiento del hardware conectado y los datos físicos confirmados por el propietario, identificando su evidencia. Hay HDD adicionales pendientes de conectar; consultar [Planned Hardware](planned-hardware.md). Los valores de uso, temperatura y salud son una fotografía, no mediciones continuas.
 
 ## Scope and Evidence
 
@@ -41,6 +41,19 @@ Los identificadores genéricos DMI no bastan para garantizar modelo comercial, c
 | ChannelB-DIMM0 | Kingston KHX1600C10D3/8G | 8 GB | 1600 MT/s | 1600 MT/s |
 
 El primer módulo presenta una diferencia entre `Speed` y `Configured Memory Speed` informada por firmware. No se cambió BIOS ni se diagnosticó un fallo por esa discrepancia.
+
+## Power Supply
+
+Datos de la unidad instalada confirmados por el propietario; no detectados por el inventario SSH ni verificados mediante un ensayo eléctrico.
+
+| Field | Value |
+| --- | --- |
+| Marca / modelo | LNZ XS550-PS |
+| Potencia declarada | 550 W nominales |
+| Color | Negro |
+| Certificación | Sin certificación, según el propietario |
+
+[Referencia comercial aportada por el propietario](https://www.mercadolibre.com.ar/fuente-de-alimentacion-para-pc-lnz-xs550-ps-550w-negra/p/MLA43933347). Los 550 W declarados no son una medición del consumo real del servidor ni una validación de potencia entregada, eficiencia o protecciones.
 
 ## Connected Storage
 
@@ -104,7 +117,7 @@ SMART PASSED no garantiza que un disco no falle. Las horas del HDD refuerzan la 
 ## Open Questions
 
 - HDD adicionales: cantidad, capacidad, salud, interfaces y datos existentes.
-- Modelo físico de placa, ranuras/puertos libres, fuente, gabinete y ventilación.
+- Modelo físico de placa, ranuras/puertos libres, gabinete y ventilación.
 - Red física completa y dispositivos que consumirán servicios.
 - Consumo eléctrico real, UPS y necesidad de disponibilidad continua.
 - Versión, paquetes, shares, capacidad libre y respaldos dentro de DSM.

@@ -15,6 +15,7 @@ This is the lab index, not a combined installation guide. Each VM or LXC owns it
 | Hypervisor | Proxmox VE 9.2.21 on Debian 13.7 |
 | CPU | Intel Core i5-4440, 4 cores / 4 threads |
 | Memory | 16 GB installed, 2 × 8 GB DDR3 |
+| Power supply | LNZ XS550-PS, black; 550 W declared rating (owner-confirmed) |
 | Connected storage | 512 GB Micron NVMe + 2 × 2 TB WD HDDs; device ownership is recorded in the host inventory |
 | Network | Realtek Fast Ethernet, 100 Mbps full-duplex |
 | Running guests | DSM and `media-server`; see the shared guest inventory for resource allocations |
