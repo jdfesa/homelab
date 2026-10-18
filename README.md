@@ -1,8 +1,6 @@
 # Homelab
 
-![Artistic illustration of the current open-frame homelab](images/homelab-open-frame.png)
-
-*AI-generated illustration based on original photos of the current open-frame homelab.*
+![AI-generated illustration of the current open-frame homelab on a dark background](images/homelab-open-frame.png)
 
 A gradually evolving home server, built to make everyday life easier—not to run as many services as possible.
 

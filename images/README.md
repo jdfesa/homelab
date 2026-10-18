@@ -4,4 +4,4 @@ Reviewed artwork for the root [README](../README.md). Configuration screenshots 
 
 | File | Purpose and scope |
 | --- | --- |
-| [homelab-open-frame.png](homelab-open-frame.png) | AI-generated isometric illustration based on original photos of the open-frame host. Decorative artwork, not a photograph, configuration evidence or an exact assembly diagram. |
+| [homelab-open-frame.png](homelab-open-frame.png) | AI-generated isometric cover based on original photos of the open-frame host, with a dark background and an embedded caption. Decorative artwork, not a photograph, configuration evidence or an exact assembly diagram. |
