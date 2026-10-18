@@ -1,5 +1,9 @@
 # Homelab
 
+![Artistic illustration of the current open-frame homelab](images/homelab-open-frame.png)
+
+*AI-generated illustration based on original photos of the current open-frame homelab.*
+
 A gradually evolving home server, built to make everyday life easier—not to run as many services as possible.
 
 **Status:** Modular Proxmox lab; DSM inventory and media automation documented; movie import/playback verified; remaining automation tracked in its module · **Last reviewed:** October 17, 2026.
@@ -85,6 +89,7 @@ The README is in English. Other documents use Spanish prose, English headings, a
 ```text
 homelab/
 ├── README.md
+├── images/               # Reviewed artwork for the lab overview
 ├── docs/                 # Shared host inventory, policies and conventions
 ├── scripts/              # Shared inventory tools and local test runner
 ├── tests/                # Shared inventory/privacy/layout tests only

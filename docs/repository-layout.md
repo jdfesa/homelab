@@ -11,6 +11,7 @@
 | Path | Role | Versioned |
 | --- | --- | --- |
 | `README.md` | Entrada pública y resumen del estado real, en inglés | Sí |
+| `images/` | Arte revisado para el README raíz; las ilustraciones generadas no son evidencia de configuración | Sí |
 | `docs/` | Inventario del host, políticas y convenciones realmente compartidas; README índice | Sí |
 | `scripts/` | Inventario transversal y runner local de pruebas; README índice | Sí |
 | `tests/` | Pruebas comunes de inventario/privacidad/estructura; README índice | Sí |
