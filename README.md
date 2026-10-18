@@ -13,6 +13,7 @@ This is the lab index, not a combined installation guide. Each VM or LXC owns it
 | Component | Observed configuration |
 | --- | --- |
 | Hypervisor | Proxmox VE 9.2.21 on Debian 13.7 |
+| Motherboard | Esonic Intel H81 DA, micro-ATX, LGA 1150, DDR3, HDMI, SATA and NVMe (owner-confirmed) |
 | CPU | Intel Core i5-4440, 4 cores / 4 threads |
 | Memory | 16 GB installed, 2 × 8 GB DDR3 |
 | Power supply | LNZ XS550-PS, black; 550 W declared rating (owner-confirmed) |
