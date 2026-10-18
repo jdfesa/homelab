@@ -16,6 +16,7 @@ Servidor multimedia sobre Debian con servicios multimedia Docker Compose indepen
 | Añadir series y temporadas | **Sonarr**, TCP8989; adopción existente probada |
 | Copiar películas/series que ya existen en otro equipo | **Finder → SMB Movies/TV**, TCP445; [guía](docs/samba.md) |
 | Revisar idiomas y subtítulos faltantes | **Bazarr**, TCP6767; EN/ES existentes y búsqueda automática de faltantes |
+| Traducir inglés existente cuando falta español | **Skill asistida**, [uso y límites](docs/bazarr.md#translate-english-exports-with-google); por petición, no automática |
 | Ver contenido de la biblioteca | **Jellyfin**, TCP8096 |
 | Consultar la limpieza automática y sus motivos | **Auditoría privada del mantenimiento**, [guía](docs/torrent-cleanup.md) |
 
@@ -42,6 +43,9 @@ flowchart TB
     bazarr["Bazarr: perfil EN/ES e inventario de pistas existentes"]
     providers["Faltantes: OpenSubtitles.com; sujeto a cuotas"]
     subtitles["Subtítulos externos junto al video"]
+    export_en["Petición manual: extraer inglés existente a copia local"]
+    translate_es["Skill asistida: Google a español; hasta 20 archivos por lote"]
+    validate_es["Validar conjunto y tiempos; copia sin sobrescribir"]
     request --> radarr
     request --> sonarr
     request --> manual
@@ -60,6 +64,10 @@ flowchart TB
     library -->|"Lectura de pistas existentes"| bazarr
     bazarr -->|"Sólo faltantes: eventos y cada 6 h"| providers
     providers --> subtitles
+    library -->|"Alternativa si falta ES y existe EN"| export_en
+    export_en --> translate_es
+    translate_es --> validate_es
+    validate_es -->|"Copia real probada; revisión visual manual"| subtitles
     subtitles --> scan
     bazarr -->|"Aviso API: refresco de episodio comprobado"| scan
     library -->|"Inicialización requerida; monitor de episodios probado"| scan
@@ -67,6 +75,8 @@ flowchart TB
 ```
 
 El recorrido de películas está probado. Sonarr ya adopta descargas existentes con hardlinks y Jellyfin detecta episodios nuevos; falta validar una adquisición nueva iniciada por Sonarr. Las líneas discontinuas representan capacidades pendientes; Bazarr busca EN/ES faltantes y avisa a Jellyfin; descarga externa y refresco automático de episodio comprobados, sujetos a disponibilidad/cuotas. El contenido copiado por SMB requiere registro adicional en el gestor para aparecer en Bazarr. Prowlarr devuelve resultados/enlaces; los videos llegan desde los peers. [Uso cotidiano](docs/workflow.md) · [Mapa técnico](docs/stack-plan.md).
+
+La [traducción asistida por el skill](docs/bazarr.md#translate-english-exports-with-google) es una alternativa manual cuando Bazarr no consigue español y existe inglés exportable, no otro proveedor ni un servicio en la VM. Navegador, validación, copia y entrega en Jellyfin se comprobaron con una temporada real; la calidad y reproducción se revisan por temporada.
 
 ### Periodic Maintenance
 

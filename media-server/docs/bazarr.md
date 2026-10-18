@@ -118,6 +118,47 @@ El aviso Immediate a Jellyfin se dispara desde las operaciones de subtítulos de
 
 ![SRT manual reconocido como español externo; la detección no certifica sincronización](../images/jellyfin-manual-subtitles-recognized.jpg)
 
+### Export Embedded English Subtitles
+
+Para traducir una pista inglesa **del propio episodio**, usar el [extractor Python](../scripts/extract-embedded-subtitles.py). Es una herramienta manual independiente de Bazarr: no consulta proveedores, no necesita claves API y no cambia videos, servicios ni subtítulos de la biblioteca.
+
+**Destino de ejecución:** Mac/Linux con Python **3.10+**, `ffmpeg` y `ffprobe` en `PATH`, acceso de lectura a una carpeta de serie y salida local escribible. Se probó con FFmpeg/ffprobe 8.0.1 y un MKV sintético cuyos textos y tiempos se conservaron. Puede leer una biblioteca montada por SMB; **la lectura del contenedor puede transferir el video completo**, aunque el resultado sólo contenga texto. No instalar herramientas ni conceder privilegios nuevos al servidor para ejecutar esta receta.
+
+Desde la raíz del repo, sustituir la ruta y el nombre genéricos; revisar primero sin escribir:
+
+```sh
+rtk proxy python3 media-server/scripts/extract-embedded-subtitles.py \
+  --source '/Volumes/TV/Example Series (2020)' \
+  --output 'media-server/exports/subtitles/Example Series' --season 1
+
+# Mismos parámetros, escritura explícita; omitir --season procesa toda la serie.
+rtk proxy python3 media-server/scripts/extract-embedded-subtitles.py \
+  --source '/Volumes/TV/Example Series (2020)' \
+  --output 'media-server/exports/subtitles/Example Series' --season 1 --apply
+```
+
+`--source` es la carpeta de **una** serie, con episodios identificados como `S01E01`; `--season` puede repetirse. La salida usa `Season 01/<nombre completo del video>.en.srt`, conservando la base necesaria para un futuro sidecar. Un archivo combinado como `S01E01E02` produce un solo SRT con la línea temporal conjunta; no se divide artificialmente. Mantener una única salida bajo **`media-server/exports/subtitles/`**, dentro del módulo, no en la raíz del repo ni en la biblioteca. `media-server/.gitignore` ya excluye `exports/`: no añadir los SRT ni el informe al repositorio público.
+
+**Selección y límites:** sólo pistas etiquetadas `eng`, `en` o `english`, no forced ni tituladas commentary. Entre pistas de texto prefiere la no marcada hearing-impaired y luego la default; si persiste un empate, falla en vez de adivinar. `und`, pistas sólo de imágenes (PGS/VobSub), ausencia de inglés y formatos no compatibles se informan como fallos; no hace OCR, reconocimiento de voz, descarga, traducción ni autosync. SubRip se copia sin recodificar; ASS/SSA, WebVTT y otros formatos de texto admitidos se convierten a SRT y pueden perder estilos/posicionamiento.
+
+**Guardas y comprobación:** simulación sin escrituras; origen/destino separados, rechazo de enlaces simbólicos de archivos y carpetas de salida por temporada, detección de nombres de salida duplicados, validación de cues UTF-8, publicación mediante temporal sin sobrescritura y comprobación de tamaño/mtime del origen antes/después de cada extracción. Un fallo deja intactos los resultados ya completados; volver a ejecutar conserva SRT existentes válidos, **sin certificar que procedan del mismo video**. No usar un destino compartido con escritores no confiables.
+
+`extraction-report.json` registra fuentes, pista elegida, estado, cantidad de cues, extremos temporales y SHA-256; se actualiza con el progreso de la ejecución actual. La salida del proceso es `1` si falló algún episodio. Revisar el resumen, no inferir completitud sólo porque exista una carpeta. `-copyts` y `-avoid_negative_ts disabled` evitan desplazar deliberadamente la línea temporal; no se corrigen errores que ya traía la pista. [Opciones oficiales de FFmpeg](https://ffmpeg.org/ffmpeg.html#Advanced-options).
+
+Para traducir, copiar el SRT a `.es.srt` y cambiar **sólo el texto**, manteniendo numeración y marcas de tiempo. Antes de incorporarlo, comprobar principio, mitad y final contra **ese mismo video**; conservar el inglés original. La exportación queda local: no copia automáticamente traducciones a la biblioteca ni refresca Jellyfin/Bazarr. Para incorporarlas, seguir [Manual Sidecars](#manual-sidecars).
+
+### Translate English Exports with Google
+
+El [skill `translate-series-subtitles`](../.agents/skills/translate-series-subtitles/SKILL.md) coordina [Subtitle Translator](https://www.syedgakbar.com/projects/dst), **Google (Free) → Español** y un helper Python local. Es una alternativa asistida cuando falta español y existe inglés exportable; no un proveedor de Bazarr, una API ni un daemon en Debian.
+
+**Uso breve:** en un chat con directorio de trabajo `media-server`, invocar `$translate-series-subtitles` e indicar **una temporada**, la carpeta de SRT ingleses y, si se desea instalarlos, su carpeta exacta de biblioteca. Desde la raíz de homelab, indicar la ruta del `SKILL.md`. La receta y comandos canónicos están allí: preparar un run nuevo bajo `exports/`, traducir, validar **todos** los lotes y sólo después simular/aplicar la copia. No sobrescribe traducciones españolas diferentes existentes.
+
+**Requisitos y datos:** Python3.10+, herramientas CUA con carga/descarga y autorización para enviar los SRT solicitados al sitio/Google. Fuentes, ZIP, manifiestos, traducciones e imágenes de la ejecución permanecen en `exports/` ignorado, nunca en Git; el helper no transmite archivos ni guarda credenciales. Publicar sidecars requiere hardlinks en el destino. Si SMB los rechaza, el skill describe el fallback probado: ejecutar el mismo helper sobre el filesystem nativo de Debian mediante SSH autorizado, con módulo temporal mínimo e identidad multimedia existente; no cambiar permisos de biblioteca ni asumir transporte SSH incorporado.
+
+**Límites:** hasta20archivos por tanda, incluyendo cualquier resto (21→20+1, 22→20+2). Usar **una pestaña nueva por tanda**: New puede dejar entradas residuales en el ZIP. El validador rechaza extras, faltantes, duplicados, rutas inseguras y cambios de numeración/tiempos; no filtra un ZIP mezclado. Ante cuotas, CAPTCHA, pago o cambios de interfaz que impidan continuar, detenerse; no sortear bloqueos ni cambiar a un proveedor pago.
+
+Se comprobaron navegador, descarga, validación, copia sin sobrescritura y entrega de español externo en Jellyfin con una temporada real. Eso no certifica la calidad de cada diálogo ni sustituye revisar reproducción y sincronía en el cliente.
+
 ## Provider and Automatic Searches
 
 Después de comprobar el inventario y asignar el perfil bilingüe:

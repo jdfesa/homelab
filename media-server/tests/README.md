@@ -14,7 +14,7 @@ Desde la raíz del repo:
 sh scripts/run-tests.sh
 ```
 
-Requieren Python3 estándar y Bash; no root, SSH, Docker ni RTK instalado para ejecutar la suite. No formatean discos, despliegan servicios ni contactan la VM. En el entorno del agente, los comandos de shell se envuelven con RTK según AGENTS.md.
+Requieren Python3 estándar (3.10+ para el extractor) y Bash; no root, SSH, Docker ni RTK instalado para ejecutar la suite. No formatean discos, despliegan servicios ni contactan la VM. La integración opcional del extractor genera un MKV diminuto si `ffmpeg` y `ffprobe` están disponibles; se omite si faltan. En el entorno del agente, los comandos de shell se envuelven con RTK según AGENTS.md.
 
 | Archivo | Contrato |
 | --- | --- |
@@ -30,5 +30,7 @@ Requieren Python3 estándar y Bash; no root, SSH, Docker ni RTK instalado para e
 | `test_radarr.py` | Bind común, imagen exacta, perfil HD equivalente, idiomas y renombrado |
 | `test_sonarr.py` | Imagen exacta, bind común, Forms nativo, perfil HD, conexiones y separación de aceptación pendiente |
 | `test_bazarr.py` | Imagen fijada, biblioteca sin downloads, LAN, bootstrap Forms privado y política bilingüe |
+| `test_embedded_subtitles.py` | Selección inglesa, temporadas, ambigüedad/bitmap, rutas/symlinks, simulación, no sobrescritura, validación SRT, cambios del origen, limpieza de temporales y tiempos/texto en MKV sintético opcional |
+| `test_subtitle_batches.py` | Particiones completas de hasta20, fuentes congeladas, ZIP inseguro/incompleto/residual, nombres/UTF-8/cues/tiempos, un SRT restante, integridad al reanudar y copia idempotente sin sobrescribir traducciones; sin navegador ni red |
 
 La [validación real del flujo](../docs/validation.md) es independiente de estos tests; no se deduce de una suite local exitosa.

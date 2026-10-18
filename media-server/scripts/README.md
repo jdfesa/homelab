@@ -1,6 +1,6 @@
 # Media Server Scripts
 
-Reusable scripts for the media VM and its storage. **Do not run every script in sequence or as root on the administration Mac.** Read the execution target and safety boundary first. Site-specific addresses, physical serials, UUIDs and logs belong in the ignored `media-server/.local/` directory, not here.
+Reusable scripts for the media VM, its storage and local administration. **Do not run every script in sequence or as root on the administration Mac.** Read the execution target and safety boundary first. Site-specific addresses, physical serials, UUIDs and logs belong in the ignored `media-server/.local/` directory, not here.
 
 ## Script Index
 
@@ -17,6 +17,8 @@ Reusable scripts for the media VM and its storage. **Do not run every script in 
 | [deploy-radarr.py](deploy-radarr.py) | Debian VM, root | First deployment of the pinned movie manager; NVMe config and one common HDD `/data` bind | Requires `--apply`, exact reviewed image, guarded existing storage, absent stack/appdata and LAN7878; no accounts/movies/integrations; cleaned-up filesystem probe as1000:2000 is not a movie-import test |
 | [deploy-sonarr.py](deploy-sonarr.py) | Debian VM, root | First deployment of pinned series manager, NVMe config and common /data bind | Requires --apply, absent state, exact image, guarded HDD and LAN8989; no accounts/series/integrations; tiny cleaned-up probe is not a real episode import |
 | [deploy-bazarr.py](deploy-bazarr.py) | Debian VM, root | First deployment of pinned subtitle manager with private Forms bootstrap | Requires `--apply`, absent state, guarded mount, exact image and LAN6767; only library RW; getpass/private stdin, providers initially off, unique cleaned-up probes; no searches or media changes |
+| [extract-embedded-subtitles.py](extract-embedded-subtitles.py) | Mac/Linux with read access to one series; no root | Export embedded English text subtitles as UTF-8 SRT, grouped by season | Preview by default, explicit `--apply`; separate output, no overwrite or media edits, no language guessing/OCR; Python 3.10+ and FFmpeg/ffprobe. [Canonical recipe](../docs/bazarr.md#export-embedded-english-subtitles) |
+| [subtitle_batches.py](../.agents/skills/translate-series-subtitles/scripts/subtitle_batches.py) | Mac/Linux, Python 3.10+; no root | Prepare batches of at most 20 English SRT, validate Spanish downloads, optionally install sidecars | Local helper for the [translation skill](../.agents/skills/translate-series-subtitles/SKILL.md); preview/explicit `--apply`, frozen inputs, exact file sets and timestamps, guarded ZIP reads, no overwrite. The helper itself does not access the browser or translate |
 | [set-media-disk-writable.py](set-media-disk-writable.py) | Proxmox, root | Revalidate an already attached read-only HDD, cleanly shut down only the media VM, enable writes on `scsi1`, start and verify it | Requires `--apply`, exact physical identity and distinct protected VM; no formatting or forced shutdown |
 | [prepare-media-storage.py](prepare-media-storage.py) | Debian VM, root | **Erase the confirmed NTFS HDD**, create GPT/ext4, UUID mount at `/data`, media directories/group, hardlink probe and Docker mount guard | Requires `--apply`, exact guest serial/size/hostname; refuses mounted/in-use/read-only disks, unexpected filesystems and repeat provisioning |
 | [check-media-storage.py](check-media-storage.py) | Debian VM | Read-only check of the expected ext4 UUID and writable `/data` mount | Exits nonzero if absent/wrong/read-only; installed as `/usr/local/sbin/check-media-storage` for Docker `ExecStartPre` |
@@ -36,4 +38,4 @@ Reusable scripts for the media VM and its storage. **Do not run every script in 
 
 ## Local Validation
 
-From the `media-server/` directory, run `python3 -m unittest discover -s tests -v`; see the [tests README](../tests/README.md). Local tests use pure functions and explicit-refusal paths only; they do not require RTK, format a disk or contact Proxmox. Actual guest mounts, service guards and application imports require separate recorded verification.
+From the `media-server/` directory, run `python3 -m unittest discover -s tests -v`; see the [tests README](../tests/README.md). Local tests use synthetic fixtures and explicit-refusal paths; they do not require RTK, format a disk or contact Proxmox. Subtitle extraction optionally tests a tiny generated MKV when FFmpeg/ffprobe are available. Actual guest mounts, service guards and application imports require separate recorded verification.

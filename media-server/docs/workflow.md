@@ -60,6 +60,8 @@ Para contenido copiado por SMB, registrarlo primero como existente en Radarr/Son
 
 Si se copian subtítulos manualmente, **misma carpeta y nombre base completo del video + `.es.srt`/`.en.srt`**; el nombre original del torrent puede no coincidir. Jellyfin puede incorporarlos con demora; para actualizar inmediatamente el inventario de Bazarr usar **Scan Disk** de esa serie, no Search. [Receta, versiones alternativas y alcance del automatismo](bazarr.md#manual-sidecars).
 
+Si ya existe inglés y se desea traducirlo, usar la [ruta asistida de exportación y traducción por lotes](bazarr.md#translate-english-exports-with-google), independiente del proveedor de Bazarr y sólo por petición del propietario.
+
 ## If Content Does Not Appear
 
 1. Si procede de Radarr, confirmar importación; si se copió por SMB, esperar a que la copia termine. Descarga completa no equivale a importación completa.
