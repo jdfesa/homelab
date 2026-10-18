@@ -24,6 +24,23 @@ This is the lab index, not a combined installation guide. Each VM or LXC owns it
 
 ## Lab Map
 
+**Infrastructure**
+
+[![Proxmox VE: Hypervisor](https://img.shields.io/badge/Proxmox_VE-Hypervisor-E57000?style=flat&logo=proxmox&logoColor=white)](docs/installed-services.md#host-software)
+[![Debian: Media VM](https://img.shields.io/badge/Debian-Media_VM-A81D33?style=flat&logo=debian&logoColor=white)](media-server/docs/setup-guide.md)
+[![Docker: Compose](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white)](docs/stack-guide.md)
+[![DSM: NAS VM](https://img.shields.io/badge/DSM-NAS_VM-60666E?style=flat&logo=synology&logoColor=white)](dsm/README.md)
+[![Samba: SMB Files](https://img.shields.io/badge/Samba-SMB_Files-4E9A06?style=flat)](media-server/docs/samba.md)
+
+**Media Services**
+
+[![Jellyfin: Streaming](https://img.shields.io/badge/Jellyfin-Streaming-00A4DC?style=flat&logo=jellyfin&logoColor=white)](media-server/docs/jellyfin.md)
+[![qBittorrent: Downloads](https://img.shields.io/badge/qBittorrent-Downloads-2F67BA?style=flat&logo=qbittorrent&logoColor=white)](media-server/docs/qbittorrent.md)
+[![Prowlarr: Indexers](https://img.shields.io/badge/Prowlarr-Indexers-F9690E?style=flat)](media-server/docs/prowlarr.md)
+[![Radarr: Movies](https://img.shields.io/badge/Radarr-Movies-FFC230?style=flat&logo=radarr&logoColor=white)](media-server/docs/radarr.md)
+[![Sonarr: TV Series](https://img.shields.io/badge/Sonarr-TV_Series-2596BE?style=flat&logo=sonarr&logoColor=white)](media-server/docs/sonarr.md)
+[![Bazarr: Subtitles](https://img.shields.io/badge/Bazarr-Subtitles-8E6AB8?style=flat)](media-server/docs/bazarr.md)
+
 Deployment overview: one physical host, its permanent VMs and their service groups. Arrows mean **contains / runs**, not application traffic. Internal workflows belong to each module's diagrams; roadmap ideas are not shown as installed.
 
 ```mermaid
