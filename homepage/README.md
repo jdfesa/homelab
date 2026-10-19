@@ -29,6 +29,7 @@ Placement follows the shared [workload ownership contract](../docs/repository-la
 1. [LXC installation guide](docs/installation-guide.md) — guest creation, approved screenshots, warnings and base checks.
 2. [Native service setup](docs/service-setup.md) — canonical source build, configuration, systemd deployment, measurements and operational limits.
 3. [Configuration](config/README.md), [local icon assets](icons/README.md) and [offline tests](tests/README.md).
+4. [Video reference](resources/video-reference.md) — an alternative helper-script installation walkthrough; not the deployment procedure used here.
 
 ## Verification Limits
 
