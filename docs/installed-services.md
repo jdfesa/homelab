@@ -1,12 +1,12 @@
 # Installed Services
 
-**Observed:** Host 2026-10-14 / Media VM 2026-10-15 · **Scope:** Host Proxmox y huéspedes; interior de `media-server` verificado por Guest Agent, DSM/XP pendientes.
+**Observed:** Host 2026-10-14 / Media VM 2026-10-15 / DSM RAM owner-confirmed 2026-10-19 · **Scope:** Host Proxmox y huéspedes; interior de `media-server` verificado por Guest Agent, DSM/XP pendientes.
 
 ## Guest Inventory
 
 | ID | Name | State | vCPU | RAM | Disks | Startup |
 | --- | --- | --- | --- | --- | --- | --- |
-| 100 | DSM | Running | 2, CPU `host` | 4096 MiB | 3,5 GiB en `local-lvm` + HDD físico de 2 TB | `onboot=1` |
+| 100 | DSM | Running | 2, CPU `host` | 3072 MiB; confirmado por el propietario | 3,5 GiB en `local-lvm` + HDD físico de 2 TB | `onboot=1` |
 | 101 | WinXPProSP3 | Stopped | 1, `x86-64-v2-AES` | 2048 MiB | 32 GiB en `local-lvm` + medio de instalación | No se observó `onboot=1` |
 | 102 | media-server | Running | 2, CPU `host` | 4096 MiB | 64 GiB SCSI en `local-lvm`, Discard/IO thread; HDD físico 2 TB `scsi1`, GPT/ext4 RW en `/data` | Arranque automático no configurado durante la preparación |
 
@@ -14,7 +14,7 @@ No se observaron huéspedes LXC. Las asignaciones de vCPU son compartidas, no n�
 
 ### DSM
 
-Entrada del huésped: [módulo DSM](../dsm/README.md). Este inventario compartido conserva recursos del host; su README separa alcance observado de configuración interna pendiente.
+Entrada del huésped: [módulo DSM](../dsm/README.md). RAM actual de 3 GiB y funcionamiento normal reportados por el propietario; no se realizó una nueva consulta al host ni una prueba de carga. Los snapshots históricos de inventario conservan sus valores originales. Su README separa alcance observado de configuración interna pendiente.
 
 - NIC VirtIO en `vmbr0`, `firewall=1` en la configuración.
 - Disco de arranque SATA con `cache=writeback`; configuración observada, no elección validada aquí.
