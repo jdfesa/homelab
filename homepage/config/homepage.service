@@ -1,0 +1,44 @@
+[Unit]
+Description=Homepage homelab portal
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=homepage
+Group=homepage
+WorkingDirectory=/opt/homepage/current
+EnvironmentFile=/etc/homepage/homepage.env
+Environment=HOME=/var/cache/homepage/runtime
+ExecStart=/opt/homepage-toolchain/node-v22.23.3-linux-x64/bin/node /opt/homepage/current/server.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0027
+CacheDirectory=homepage/runtime
+CacheDirectoryMode=0750
+ReadWritePaths=/var/cache/homepage/runtime
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryHigh=512M
+MemoryMax=768M
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

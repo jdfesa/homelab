@@ -1,0 +1,15 @@
+title: Homelab
+description: Local service portal
+theme: dark
+color: slate
+language: es
+headerStyle: clean
+target: _blank
+statusStyle: dot
+layout:
+  Infrastructure:
+    style: row
+    columns: 2
+  Media:
+    style: row
+    columns: 3

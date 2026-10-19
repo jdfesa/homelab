@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/homarr-labs/dashboard-icons",
+  "acquisition": "owner-provided downloads",
+  "upstream_commit": null,
+  "upstream_identity_verified": false,
+  "files_unmodified": true,
+  "files": [
+    {
+      "service": "Proxmox",
+      "file": "proxmox.png",
+      "bytes": 28299,
+      "width": 590,
+      "height": 512,
+      "sha256": "0fc53d37b6685c1af5018fa37d15ef02a16883661cefd68f6c62264ddf2bdf8b"
+    },
+    {
+      "service": "ProxMenux Monitor",
+      "file": "proxmenu.png",
+      "bytes": 23706,
+      "width": 545,
+      "height": 512,
+      "sha256": "9982befa7c641ba311efc2a6e4f6beaa1ae44e545af9a407179b5c9401a2ff73"
+    },
+    {
+      "service": "DSM",
+      "file": "synology-dsm.png",
+      "bytes": 20294,
+      "width": 506,
+      "height": 512,
+      "sha256": "44154034b8fc2a5e06d6c7a4f0886b932d97370528d782fca360c9da41d1ef10"
+    },
+    {
+      "service": "Jellyfin",
+      "file": "jellyfin.png",
+      "bytes": 45631,
+      "width": 512,
+      "height": 512,
+      "sha256": "2e45c7bb04b1fdbc70737be1676c73bcfbe98dcd9f72dcd063196c7075c65b37"
+    },
+    {
+      "service": "qBittorrent",
+      "file": "qbittorrent.png",
+      "bytes": 59717,
+      "width": 512,
+      "height": 512,
+      "sha256": "3d03a2c91440a85ab6879207f90e17a8ff9c9580ae5a26ec3a64b2c2418f7019"
+    },
+    {
+      "service": "Prowlarr",
+      "file": "prowlarr.png",
+      "bytes": 56163,
+      "width": 512,
+      "height": 512,
+      "sha256": "70fcd5bd642bfe65936e47469497de638efbdeb8d30ea916fdf7f9c743d7e908"
+    },
+    {
+      "service": "Radarr",
+      "file": "radarr.png",
+      "bytes": 23404,
+      "width": 512,
+      "height": 512,
+      "sha256": "2d1534f87513e2a7a3b699654dfed2ba70f6f65693ed4a015e497315135e2e67"
+    },
+    {
+      "service": "Sonarr",
+      "file": "sonarr.png",
+      "bytes": 33627,
+      "width": 512,
+      "height": 512,
+      "sha256": "a6d3283d0232b5a0bd0572f3d26edcbe64d07d36f43c3fc28d4f0bc155eaf49a"
+    },
+    {
+      "service": "Bazarr",
+      "file": "bazarr.png",
+      "bytes": 26445,
+      "width": 512,
+      "height": 512,
+      "sha256": "527cc305b55657ea1db17de9d962be6611a09b3f1972b125b68a3eb3b1529e45"
+    }
+  ],
+  "license": {
+    "file": "LICENSE.txt",
+    "identifier": "Apache-2.0",
+    "sha256": "e58a8fa57781d1dc7158b333b68c99461031fd2c25dfbd23eac15a8e984cae56"
+  },
+  "provenance_note": "Source repository declared by the owner; no independent upstream commit/blob comparison. Reconstruction uses these versioned bytes and SHA-256 hashes, not a mutable CDN URL."
+}

@@ -1,0 +1,7 @@
+- datetime:
+    text_size: xl
+    locale: en-US
+    format:
+      dateStyle: full
+      timeStyle: short
+      hourCycle: h12

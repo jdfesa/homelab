@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "homepage": {
+    "version": "2.6.0",
+    "repository": "https://github.com/gethomepage/homepage.git",
+    "commit": "51cc1684f9f34a7877ed462b8f94c9cc687b4dde",
+    "pnpm_lock_sha256": "f8762d41894a32f3066f1114dc5e4d5b54e0f97ff05a956e7179384686b94d3d"
+  },
+  "node": {
+    "version": "22.23.3",
+    "architecture": "linux-x64",
+    "url": "https://nodejs.org/dist/v22.23.3/node-v22.23.3-linux-x64.tar.xz",
+    "sha256": "df450af89261115ef9f9e3830c3eeb2cc9213b63c720b1af623cb5dcbe2e02de"
+  },
+  "pnpm": {
+    "version": "10.34.7",
+    "url": "https://registry.npmjs.org/pnpm/-/pnpm-10.34.7.tgz",
+    "sha256": "c729f6538e005d234889910466fd1c4c44affb0b28ea86d93fcf88aa1aefa694",
+    "integrity": "sha512-upirxYVTmTM3W1lx9LxtbHOhtLftxKh559EC/lQj0eAjCdZ8YKEfBJVQk6luUhrZw7E4zdZUylvlY/N4s65IvQ=="
+  },
+  "build": {
+    "dependency_install": "pnpm install --frozen-lockfile --ignore-scripts",
+    "production_build": "pnpm run build",
+    "output": ".next/standalone",
+    "temporary_lxc_memory_mib": 2048,
+    "runtime_lxc_memory_mib": 1024
+  }
+}

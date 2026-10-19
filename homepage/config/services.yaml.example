@@ -1,0 +1,38 @@
+- Infrastructure:
+    - Proxmox:
+        icon: /icons/proxmox.png
+        href: <proxmox-url>
+        description: Virtual machines and containers
+    - ProxMenux Monitor:
+        icon: /icons/proxmenu.png
+        href: <proxmenux-monitor-url>
+        description: Host monitoring
+    - DSM:
+        icon: /icons/synology-dsm.png
+        href: <dsm-url>
+        description: Network storage
+- Media:
+    - Jellyfin:
+        icon: /icons/jellyfin.png
+        href: <jellyfin-url>
+        description: Watch movies and TV
+    - qBittorrent:
+        icon: /icons/qbittorrent.png
+        href: <qbittorrent-url>
+        description: Download queue
+    - Prowlarr:
+        icon: /icons/prowlarr.png
+        href: <prowlarr-url>
+        description: Indexer management
+    - Radarr:
+        icon: /icons/radarr.png
+        href: <radarr-url>
+        description: Movie management
+    - Sonarr:
+        icon: /icons/sonarr.png
+        href: <sonarr-url>
+        description: TV management
+    - Bazarr:
+        icon: /icons/bazarr.png
+        href: <bazarr-url>
+        description: Subtitle management
