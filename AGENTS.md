@@ -1,5 +1,11 @@
 # Homelab — Criterios de trabajo
 
+## Arquitectura modular y propósito
+
+- Cada VM o LXC debe tener una función concreta y un módulo propio en el repositorio. Su README declara propósito, alcance y límites; seguir el [contrato canónico](docs/repository-layout.md#purpose-and-placement).
+- Un huésped puede agrupar varios servicios sólo cuando comparten una función coherente y explícita. No alojar servicios ajenos por conveniencia, capacidad libre o ahorro de RAM; optimizar recursos sin romper los límites funcionales.
+- Un portal global como Homepage no pertenece a `media-server`: requiere un huésped dedicado o uno de infraestructura con servicios relacionados y alcance definido. No crear huéspedes ni carpetas de propuestas como si ya estuvieran implementados.
+
 ## Documentación que aporta valor
 
 - Usar siempre nombres en inglés para recursos, carpetas compartidas, identificadores y configuraciones; la explicación al usuario puede estar en español.
@@ -19,6 +25,7 @@
 ## Temporal frente a reutilizable
 
 - Guardar notas de trabajo, handoffs, investigación no adoptada, pruebas incompletas y capturas transitorias en **`tmp/<modulo>/`**, excluido de Git. Consultarlas para continuar; no trasladarlas enteras a las guías al cerrar un turno.
+- Los directorios `tmp/`, también dentro de cada módulo, son descartables: una reconstrucción desde Git y sus pruebas no deben depender de ellos ni tratarlos como documentación pública. Promover sólo conocimiento útil, probado, reproducible y sin datos sensibles a su guía canónica; nunca historiales de contenido ni credenciales. La revisión de publicación debe seguir detectando archivos privados ya seguidos por Git.
 - Usar `.local/` para valores persistentes del sitio y evidencia privada. `tmp/` no es un almacén seguro de credenciales.
 - Promover a `scripts/` sólo herramientas reutilizables y probadas, con destino de ejecución, parámetros, guardas y límites documentados. Los scripts de una descarga o intervención concreta permanecen locales.
 - Las pruebas del repo validan contratos y comportamiento reproducible, no que una descarga concreta exista o conserve cierto progreso.

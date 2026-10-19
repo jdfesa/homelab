@@ -1,6 +1,6 @@
 # Public Repository Guide
 
-**Status:** Publication safeguards and media-server review · **Remote:** [jdfesa/homelab](https://github.com/jdfesa/homelab), branch `main` · **Reviewed:** 2026-10-17.
+**Status:** Publication safeguards and repository CI definition · **Remote:** [jdfesa/homelab](https://github.com/jdfesa/homelab), branch `main` · **Reviewed:** 2026-10-18.
 
 ## Scope and Ownership
 
@@ -66,6 +66,25 @@ gitleaks git . --log-opts=--all --redact=100
 ```
 
 Un resultado sin hallazgos no invalida las excepciones públicas conocidas: los detectores no reconocen todas las contraseñas genéricas ni leen los pixels de las capturas. No ejecutar un escaneo de todo el directorio privado ni subirlo a un servicio externo para validar archivos que no van a publicarse.
+
+## Repository CI
+
+El [workflow compartido](../.github/workflows/ci.yml) valida el repositorio en `push`, `pull_request` y ejecución manual. Es tooling transversal, no un servicio del homelab ni parte de una VM/LXC. Su primera ejecución alojada requiere publicar el workflow; las comprobaciones locales no prueban un resultado en GitHub Actions.
+
+Un único job `Repository checks` usa un runner de GitHub `ubuntu-24.04` y Python 3.13:
+
+1. Checkout completo del historial, sin persistir credenciales.
+2. El preflight existente con reconocimiento exclusivo del ejemplo canónico de laboratorio; no amplía las excepciones de publicación.
+3. [Gitleaks 8.30.1](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1) sobre el historial Git completo, con redacción del 100% y sin aceptar comentarios `gitleaks:allow`. Descarga el binario oficial Linux x64, verifica SHA-256 antes de extraerlo y elimina la herramienta temporal al terminar. No usa baselines ni añade excepciones al escáner.
+4. Las pruebas comunes y de cada módulo mediante el runner existente. La integración sintética FFmpeg se omite si no están disponibles `ffmpeg`/`ffprobe`; no se trata como una validación de reproducción del servidor.
+
+Las acciones oficiales están fijadas a commits completos; el escáner a versión y checksum. Al actualizarlos, verificar las referencias upstream y repetir la validación local. El job tiene permisos `contents: read`, límite de 15 minutos y cancela ejecuciones anteriores de la misma referencia. No utiliza secretos del homelab, SSH, runners propios, despliegues ni artefactos de informes.
+
+Las fuentes privadas ignoradas no forman parte del checkout. Si un archivo privado ya está seguido, el preflight debe fallar: no excluirlo del escaneo para obtener un resultado verde. Los logs del preflight omiten valores y Gitleaks redacta los secretos; no subir reportes sin revisar ni habilitar trazas que impriman credenciales.
+
+**Límites:** Actions se ejecuta después de recibir los commits; un fallo no impide su publicación ni configura por sí solo una regla de integración obligatoria. GitHub confirmó Secret Scanning y Push Protection habilitados en este repositorio en la revisión indicada; no se cambiaron esos ajustes. Mantener los controles locales antes del push y la revisión manual de imágenes/PDFs. Ninguna comprobación garantiza detectar todo dato personal o contraseña arbitraria. [Push Protection](https://docs.github.com/en/code-security/concepts/secret-security/push-protection).
+
+Los comandos de [Local Preflight](#local-preflight) permiten repetir las comprobaciones fuera de GitHub. Para validar además la sintaxis del workflow con [actionlint](https://github.com/rhysd/actionlint), ejecutar `actionlint .github/workflows/ci.yml` con una versión instalada y revisada. Las [pruebas de contrato](../tests/test_ci.py) comprueban límites de permisos, eventos, pins, historial, checksum y redacción sin acceder a red ni secretos. No sustituyen ejecutar el workflow alojado.
 
 ## First Publication Checklist
 

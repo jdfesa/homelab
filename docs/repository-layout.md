@@ -1,6 +1,6 @@
 # Repository Layout
 
-**Status:** Workload ownership rules applied · **Updated:** 2026-10-17.
+**Status:** Workload ownership rules applied · **Updated:** 2026-10-18.
 
 ## Reference and Scope
 
@@ -36,6 +36,19 @@
 - No presentar una app candidata como installed ni inferir capacidades de una VM solo por su nombre.
 
 ## Workload Module Contract
+
+### Purpose and Placement
+
+Cada VM o LXC tiene una función concreta, un alcance explícito y un módulo propio. La ubicación de un servicio se decide por su responsabilidad, no por encontrar un huésped encendido o con recursos libres.
+
+- **Agrupación coherente:** varios servicios pueden compartir huésped si forman parte de la misma función. Por ejemplo, adquisición, organización, subtítulos y reproducción pertenecen al módulo multimedia. Compartir Debian o Docker no basta para justificar una agrupación.
+- **Límites funcionales:** un servicio transversal al homelab, como un portal global, no pertenece al módulo multimedia sólo porque enlace sus aplicaciones. Debe tener un huésped dedicado o integrarse en uno de infraestructura con servicios relacionados y propósito definido, no en un contenedor genérico de aplicaciones sin relación.
+- **Alcance documentado:** antes de añadir un servicio, el README del módulo debe permitir entender su propósito, qué incluye y excluye, sus dependencias y sus límites de mantenimiento y recuperación. Un huésped multipropósito requiere una relación funcional explícita entre sus servicios.
+- **Recursos sin mezclar responsabilidades:** elegir VM o LXC y dimensionar recursos según requisitos y aislamiento. El ahorro de RAM no justifica alojar servicios ajenos al propósito del huésped.
+- **Unidad de modularidad:** el módulo raíz representa al huésped VM/LXC, no obliga a crear una VM por cada aplicación Docker. Los servicios relacionados mantienen sus configuraciones dentro del módulo que los ejecuta.
+- **Estado real:** definir una propuesta no autoriza su despliegue ni crea un módulo instalado. Añadir una carpeta cuando haya trabajo concreto que mantener y distinguir siempre lo propuesto de lo comprobado.
+
+### Module Structure
 
 Cada VM/LXC tiene su propio directorio. `media-server/` aplica esta estructura; añadir subdirectorios sólo cuando contienen material útil:
 

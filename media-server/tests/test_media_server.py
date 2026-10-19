@@ -7,7 +7,8 @@ import unittest
 
 
 MODULE = Path(__file__).resolve().parents[1]
-PRIVATE_PARTS = {".local", "__pycache__", "appdata", "data", "downloads", "cache", "secrets", "backups", "exports"}
+# Temporary work is disposable, not a public source or a prerequisite for tests.
+PRIVATE_PARTS = {".local", "tmp", "__pycache__", "appdata", "data", "downloads", "cache", "secrets", "backups", "exports"}
 
 
 def is_public(path):
@@ -15,6 +16,28 @@ def is_public(path):
 
 
 class MediaServerReferenceTests(unittest.TestCase):
+    def test_public_scope_excludes_temporary_work_at_any_depth(self):
+        for relative in (
+            "tmp/session/notes.md",
+            "tmp/session/helper.py",
+            "tmp/session/credentials.json",
+            "docs/tmp/session/report.md",
+        ):
+            with self.subTest(path=relative):
+                self.assertFalse(is_public(MODULE / relative))
+
+    def test_public_scope_keeps_reusable_sources_visible(self):
+        for relative in (
+            "README.md",
+            "RUNBOOK.md",
+            "docs/workflow.md",
+            "docs/tmp-guide.md",
+            "scripts/check-storage.py",
+            "config/example.json",
+        ):
+            with self.subTest(path=relative):
+                self.assertTrue(is_public(MODULE / relative))
+
     def test_configuration_and_package_lock_agree(self):
         config = json.loads((MODULE / "vm-config.json").read_text())
         lock = json.loads((MODULE / "base-packages.lock.json").read_text())
