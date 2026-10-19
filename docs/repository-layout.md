@@ -1,6 +1,6 @@
 # Repository Layout
 
-**Status:** Workload ownership rules applied · **Updated:** 2026-10-18.
+**Status:** Workload ownership rules applied · **Updated:** 2026-10-19.
 
 ## Reference and Scope
 
@@ -66,7 +66,7 @@ Cada VM/LXC tiene su propio directorio. `media-server/` aplica esta estructura; 
 └── .local/               # Datos del sitio y evidencia privada, ignorados
 ```
 
-El módulo [DSM](../dsm/README.md) registra por ahora sólo lo observado y lo que falta; no inventa una instalación interna. El mapa principal sólo muestra DSM y media-server por decisión del usuario; no incluye la VM experimental ni un LXC no configurado.
+El módulo [DSM](../dsm/README.md) registra sólo lo observado y lo que falta; no inventa una instalación interna. El mapa principal incluye huéspedes comprobados: DSM, media-server y el LXC Homepage con aplicación nativa instalada, healthcheck interno verificado y render desde navegador LAN confirmado. La VM experimental permanece excluida.
 
 El README de una VM debe permitir a otra persona entender qué está comprobado, qué falta, qué scripts son destructivos y desde dónde se ejecutan. Un cambio específico se documenta en ese módulo; el índice global sólo necesita actualización cuando cambian ownership, recursos o navegación. No duplicar versiones, cronologías y pasos operativos en varios índices.
 

@@ -144,12 +144,13 @@ class PublicationTests(unittest.TestCase):
             self.assertEqual(result["binary_files"], ["image.png"])
             self.assertEqual(result["findings"][0]["kind"], "symlink-needs-review")
 
-    def test_root_map_has_one_host_two_workloads_and_no_experimental_guest(self):
+    def test_root_map_has_one_host_known_workloads_and_no_experimental_guest(self):
         readme = (ROOT / "README.md").read_text()
         diagram = readme.split("```mermaid\n", 1)[1].split("```", 1)[0]
         for label in ["Proxmox VE - one physical host", "VM 100 - DSM", "VM 102 - media-server",
                       "Docker Compose", "Jellyfin", "qBittorrent", "Prowlarr", "Radarr", "Sonarr", "Bazarr",
-                      "Native services", "Samba and scheduled maintenance"]:
+                      "Native services", "Samba and scheduled maintenance",
+                      "LXC 103 - Debian - Homepage (native)"]:
             self.assertIn(label, diagram)
         self.assertNotIn('Sonarr - planned, not deployed', diagram)
         for excluded in ["WinXP", "Windows XP", "VM 101", "hardlink", "Full Sync", "/data/", "torrent-cleanup.py"]:
@@ -158,6 +159,7 @@ class PublicationTests(unittest.TestCase):
         self.assertLessEqual(len(re.findall(r'^\s*[A-Za-z]\w*\[', diagram, re.MULTILINE)), 8)
         self.assertLessEqual(diagram.count(' --> '), 6)
         self.assertIn('media-server/README.md#workflow', readme)
+        self.assertIn('homepage/README.md', readme)
         self.assertTrue((ROOT / "dsm/README.md").is_file())
 
 

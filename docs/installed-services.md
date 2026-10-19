@@ -1,6 +1,6 @@
 # Installed Services
 
-**Observed:** Host 2026-10-14 / Media VM 2026-10-15 / DSM RAM owner-confirmed 2026-10-19 · **Scope:** Host Proxmox y huéspedes; interior de `media-server` verificado por Guest Agent, DSM/XP pendientes.
+**Observed:** Host 2026-10-14 / Media VM 2026-10-15 / DSM RAM owner-confirmed 2026-10-19 / Homepage LXC 2026-10-19 · **Scope:** Host y huéspedes; Homepage verificado por consola y SSH a Proxmox con `pct exec`, sin repetir el inventario completo del host.
 
 ## Guest Inventory
 
@@ -9,8 +9,13 @@
 | 100 | DSM | Running | 2, CPU `host` | 3072 MiB; confirmado por el propietario | 3,5 GiB en `local-lvm` + HDD físico de 2 TB | `onboot=1` |
 | 101 | WinXPProSP3 | Stopped | 1, `x86-64-v2-AES` | 2048 MiB | 32 GiB en `local-lvm` + medio de instalación | No se observó `onboot=1` |
 | 102 | media-server | Running | 2, CPU `host` | 4096 MiB | 64 GiB SCSI en `local-lvm`, Discard/IO thread; HDD físico 2 TB `scsi1`, GPT/ext4 RW en `/data` | Arranque automático no configurado durante la preparación |
+| 103 | homepage | Running; Homepage nativo, healthcheck interno y render en navegador LAN verificados | 1 núcleo lógico (LXC) | 1024 MiB; límite swap 1024 MiB | 8 GiB en `local-lvm` | `onboot` desactivado en Options |
 
-No se observaron huéspedes LXC. Las asignaciones de vCPU son compartidas, no núcleos físicos reservados; la VM apagada no consume su asignación de RAM como una VM encendida.
+Homepage es el primer huésped LXC observado. Las asignaciones de CPU son compartidas, no núcleos físicos reservados; en LXC la memoria configurada es un límite, no una reserva permanente. El estado histórico de las otras VMs no se volvió a consultar al verificar este LXC.
+
+### Homepage
+
+Entrada y procedimiento: [módulo Homepage](../homepage/README.md). Aplicación nativa instalada, healthcheck HTTP interno correcto y render desde navegador LAN confirmado por el propietario; comprobaciones operativas restantes en el módulo. Recursos temporales de compilación, configuración y límites específicos permanecen en el módulo. El servicio está habilitado dentro de Debian; eso no cambia el arranque automático del LXC en Proxmox.
 
 ### DSM
 
@@ -43,7 +48,7 @@ Estado, versiones, almacenamiento y pasos de reproducción pertenecen exclusivam
 | --- | --- | --- |
 | Proxmox VE | Metapaquete 9.2.0; manager 9.2.21 | Hipervisor instalado y operativo |
 | QEMU / KVM | `pve-qemu-kvm` 11.0.3-4 | Runtime de las VMs |
-| LXC | `lxc-pve` 7.0.0-2 | Soporte instalado; sin huéspedes observados |
+| LXC | `lxc-pve` 7.0.0-2 en el inventario del host | Soporte instalado; Homepage es un huésped observado posteriormente |
 | LVM2 | 2.03.31-2+pmx1 | Storage principal en LVM-thin |
 | mdadm | 4.4-11 | Arrays de Synology visibles en el host |
 | Btrfs tools | 6.14-1 | Utilidades; no implica que el volumen DSM esté montado |

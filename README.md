@@ -4,7 +4,7 @@
 
 A gradually evolving home server, built to make everyday life easier—not to run as many services as possible.
 
-**Status:** Modular Proxmox lab; DSM inventory and media automation documented; movie import/playback verified; remaining automation tracked in its module · **Last reviewed:** October 17, 2026.
+**Status:** Modular Proxmox lab; DSM inventory and media automation documented; native Homepage installed in a dedicated LXC; LAN browser rendering verified · **Last reviewed:** October 19, 2026.
 
 This is the lab index, not a combined installation guide. Each VM or LXC owns its configuration, roadmap, procedures, scripts and tests in a separate directory with a README. Only shared inventory, conventions and tooling live at this level.
 
@@ -19,8 +19,8 @@ This is the lab index, not a combined installation guide. Each VM or LXC owns it
 | Power supply | LNZ XS550-PS, black; 550 W declared rating (owner-confirmed) |
 | Connected storage | 512 GB Micron NVMe + 2 × 2 TB WD HDDs; device ownership is recorded in the host inventory |
 | Network | Realtek Fast Ethernet, 100 Mbps full-duplex |
-| Running guests | DSM and `media-server`; see the shared guest inventory for resource allocations |
-| LXC guests | None observed; Docker containers run inside the media-server VM |
+| Observed guests | DSM and `media-server` in the earlier host inventory; `homepage` LXC running and checked separately on October 19 |
+| LXC guests | `homepage`: Debian 13 with native Homepage; LAN browser rendering verified |
 
 ## Lab Map
 
@@ -41,13 +41,14 @@ This is the lab index, not a combined installation guide. Each VM or LXC owns it
 [![Sonarr: TV Series](https://img.shields.io/badge/Sonarr-TV_Series-2596BE?style=flat&logo=sonarr&logoColor=white)](media-server/docs/sonarr.md)
 [![Bazarr: Subtitles](https://img.shields.io/badge/Bazarr-Subtitles-8E6AB8?style=flat)](media-server/docs/bazarr.md)
 
-Deployment overview: one physical host, its permanent VMs and their service groups. Arrows mean **contains / runs**, not application traffic. Internal workflows belong to each module's diagrams; roadmap ideas are not shown as installed.
+Deployment overview: one physical host, its permanent VMs/LXC and their service groups. Arrows mean **contains / runs**, not application traffic. Internal workflows and verification limits belong to each module.
 
 ```mermaid
 flowchart TB
     proxmoxHost["Proxmox VE - one physical host"]
     dsmVm["VM 100 - DSM"]
     mediaVm["VM 102 - media-server - Debian"]
+    homepageCt["LXC 103 - Debian - Homepage (native)"]
     dsmScope["NAS: internal inventory pending"]
     mediaContainers["`Docker Compose
 Jellyfin, qBittorrent, Prowlarr
@@ -56,14 +57,15 @@ Radarr, Sonarr, Bazarr`"]
 Samba and scheduled maintenance`"]
     proxmoxHost --> dsmVm
     proxmoxHost --> mediaVm
+    proxmoxHost --> homepageCt
     dsmVm --> dsmScope
     mediaVm --> mediaContainers
     mediaVm --> mediaNative
 ```
 
-Open [DSM](dsm/README.md) for its inventory scope or [media-server](media-server/README.md#workflow) for acquisition, playback and maintenance flows. Ports, storage paths, script rules and validation limits stay inside their module, not in this overview.
+Open [DSM](dsm/README.md) for its inventory scope, [media-server](media-server/README.md#workflow) for acquisition, playback and maintenance flows, or [Homepage](homepage/README.md) for the dedicated LAN bookmark portal and its reproducible setup. Ports, storage paths, script rules and validation limits stay inside their module, not in this overview.
 
-No LXC workload is configured/documented yet. A legacy test guest is intentionally omitted from this map and module list; its historical resource record remains in the shared inventory. No guest was deleted or changed.
+Homepage is installed, its internal healthcheck responds, and LAN browser rendering is confirmed; remaining operational checks stay in its module. A legacy test guest is intentionally omitted from this map and module list; its historical resource record remains in the shared inventory.
 
 ## Workload Modules
 
@@ -71,6 +73,7 @@ No LXC workload is configured/documented yet. A legacy test guest is intentional
 | --- | --- | --- |
 | [dsm](dsm/README.md) | VM 100; existing NAS | File storage; internal services and backup acceptance still need inventory |
 | [media-server](media-server/README.md) | VM 102; Debian, six Compose services, native Samba and scheduled maintenance | Movie/TV acquisition, organization, subtitles and playback; detailed status in the module |
+| [homepage](homepage/README.md) | LXC 103; Debian 13, native Homepage; LAN browser rendering verified | Dedicated homelab entry point |
 
 Read a module's README before running its scripts. DSM currently has an honest inventory/remaining-work entry, not an invented installer. No empty LXC or experimental-guest modules are created merely to fill a template. Host-wide facts belong in shared docs; workload procedures have one source of truth inside their module. Update this map/table when a workload is added, removed or changes verified status; update service-level details in its own module.
 
@@ -113,6 +116,7 @@ homelab/
 ├── resources/            # Shared reference material
 ├── dsm/                  # Existing VM: observed scope and documentation still needed
 ├── media-server/         # Self-owned VM module: README, roadmap, docs, scripts, tests
+├── homepage/             # Dedicated LXC: native Homepage portal
 ├── .local/               # Private host inventory and access notes (ignored)
 └── tmp/                  # Temporary working files (ignored)
 ```
