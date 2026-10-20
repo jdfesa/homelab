@@ -1,8 +1,10 @@
 # Service Roadmap
 
-**Status:** Cross-workload exploration / Not an operational rollout · **Updated:** 2026-10-15.
+**Status:** Cross-workload exploration / Not an operational rollout · **Updated:** 2026-10-20.
 
 El objetivo es ganar comodidad con menos mantenimiento, no instalar todos los servicios de una lista. Este catálogo conserva ideas compartidas y estimaciones históricas, no el estado operativo actual. El trabajo multimedia concreto sigue únicamente su [Roadmap](../media-server/ROADMAP.md); futuros despliegues tendrán el suyo en su propio módulo.
+
+Las decisiones actuales de selección y exclusión se consultan en [TODO.md](../TODO.md) y [NOT-PLANNED.md](../NOT-PLANNED.md), respectivamente, y prevalecen sobre este catálogo histórico. Los servicios excluidos no son candidatos activos; los requisitos y escenarios de recursos siguientes conservan su contexto original.
 
 ## Safety Foundation
 
@@ -28,7 +30,6 @@ Los presupuestos de RAM son **estimaciones iniciales propias**, no promesas de r
 | DNS doméstico | AdGuard Home | Reducir anuncios/trackers y facilitar nombres locales | LXC no privilegiado dedicado; ~256–512 MiB orientativos | Diseño DNS/router; probar primero un dispositivo y prever recuperación |
 | Estado de servicios | Uptime Kuma | Alertas cuando una aplicación deja de responder | VM de apps / Compose; ~512 MiB–1 GiB orientativos | Canal de notificación y checks; no sustituye monitor externo del host |
 | Documentos | Paperless-ngx | Buscar facturas, garantías y trámites por texto | VM de apps / Compose; ~2–3 GiB orientativos | Idioma OCR, archivos + BD, backup consistente; limitar concurrencia |
-| Fotos | Immich | Biblioteca y carga de fotos desde el celular | VM Linux / Compose; reservar al menos 6 GiB según upstream | Dimensionar biblioteca, SSD para PostgreSQL y carga inicial; no migrar la única copia |
 | Domótica | Home Assistant OS | Automatizaciones y control local | VM dedicada; mínimo upstream 2 GiB / 2 vCPU, ampliar según integraciones | Dispositivos reales, radios Zigbee/Thread si hacen falta y backup de configuración |
 | Multimedia | Jellyfin | Biblioteca privada para TV y otros clientes | Huésped a definir; presupuesto según direct play/transcoding | Codecs/clientes, red y acceso a GPU; no prometer varios streams 4K |
 | Acceso cómodo | Homepage, cuando haya suficientes apps | Portal único con enlaces y estado | VM de apps; ~256–512 MiB orientativos | No confundir dashboard con autenticación de los servicios |

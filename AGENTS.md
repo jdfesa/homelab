@@ -5,6 +5,7 @@
 - Cada VM o LXC debe tener una función concreta y un módulo propio en el repositorio. Su README declara propósito, alcance y límites; seguir el [contrato canónico](docs/repository-layout.md#purpose-and-placement).
 - Un huésped puede agrupar varios servicios sólo cuando comparten una función coherente y explícita. No alojar servicios ajenos por conveniencia, capacidad libre o ahorro de RAM; optimizar recursos sin romper los límites funcionales.
 - Un portal global como Homepage no pertenece a `media-server`: requiere un huésped dedicado o uno de infraestructura con servicios relacionados y alcance definido. No crear huéspedes ni carpetas de propuestas como si ya estuvieran implementados.
+- Antes de recomendar servicios nuevos, consultar `TODO.md` y `NOT-PLANNED.md` en la raíz. No volver a proponer servicios excluidos mientras se mantengan sus motivos; reevaluar sólo por solicitud explícita o cambios relevantes en las condiciones registradas. Las exclusiones se mantienen únicamente en `NOT-PLANNED.md`, sin duplicar sus motivos aquí ni tratarlas como imposibilidades técnicas permanentes.
 
 ## Documentación que aporta valor
 
