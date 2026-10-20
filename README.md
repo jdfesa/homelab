@@ -95,6 +95,7 @@ The README is in English. Other documents use Spanish prose, English headings, a
 - [Planned Hardware](docs/planned-hardware.md) — devices not yet connected and discovery checklist.
 - [Installed Services](docs/installed-services.md) — confirmed guests and host services, with unknowns clearly marked.
 - [Service Roadmap](docs/service-roadmap.md) — useful applications, dependencies, and resource trade-offs.
+- [Future Services](TODO.md) — selected future services with topology and deployment still pending; not part of the installed inventory.
 - [Security and Access](docs/security-and-access.md) — SSH, data protection, and publication safeguards.
 - [Public Repository Guide](docs/publication-guide.md) — audited scope, ignore rules, known public exceptions and first-push checklist.
 - [Operations Runbook](docs/operations-runbook.md) — safe inventory refresh and maintenance workflow.
