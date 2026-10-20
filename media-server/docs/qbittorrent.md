@@ -98,7 +98,7 @@ Operar desde `/srv/media-server/compose/qbittorrent/` dentro de Debian. Antes de
 
 La política de seeding/limpieza debe conservar biblioteca y torrents activos. No borrar archivos directamente para liberar espacio sin revisar los enlaces y el gestor. Restauración independiente aún no probada.
 
-El mantenimiento periódico tiene una [receta canónica de limpieza](torrent-cleanup.md): dos reglas, auditoría privada, timer de seis horas y simulación por defecto. No confundir código probado localmente con un timer instalado o borrado habilitado en la VM.
+La [política canónica de mantenimiento](torrent-cleanup.md#native-seeding-stop) separa **Stop nativo tras 60 minutos de seeding**, independiente de la biblioteca, del **retiro seguro** mediante script y timer de seis horas. Stop conserva entrada y archivos; nunca habilitar borrado nativo. La guía detalla contadores, overrides y verificación; no confundir código probado localmente con ejecución real en la VM.
 
 ## Primary Sources
 

@@ -2,9 +2,27 @@
 
 Mantenimiento periódico del cliente, no limpieza general de discos. [Script](../scripts/torrent-cleanup.py), [unidades systemd](../config/torrent-cleanup/) y [pruebas sintéticas](../tests/test_torrent_cleanup.py). Un ejecutable con dos políticas independientes; **simulación por defecto**. Las pruebas locales no demuestran que esté instalado o activo en una VM.
 
-**Estado verificado:** revisión actual instalada en Debian, con progreso mínimo, gracia semanal y estado v2. Primer arranque real exitoso en **simulación**, migración registrada, muestras persistentes y timer habilitado cada seis horas. Código instalado contrastado con la fuente revisada; credenciales y unidades conservadas, entradas de qBit y archivos existentes de biblioteca sin cambios durante la comprobación.
+**Estado verificado:** revisión actual instalada en Debian, con progreso mínimo, gracia semanal y estado v2. Migración y muestras persistentes comprobadas inicialmente en simulación. Código instalado contrastado con la fuente revisada; timer habilitado cada seis horas y ejecución programada con `--apply`/salida 0 comprobada. El **Stop nativo de 60 minutos** está guardado y su detención real verificada, conservando la entrada, las rutas y el manifiesto de archivos.
 
-**Acciones habilitadas:** override `--apply` verificado para **ambas políticas** en las próximas revisiones programadas. La activación conservó las muestras y la auditoría, sin iniciar una limpieza manual ni acortar plazos. La última ejecución verificada fue una simulación; no confundir configuración activa con borrados ya comprobados. El retiro real de completos se validó en la revisión anterior; faltan comprobar ventanas reales de 24 h/gracia semanal, ejecución programada y borrado seguro de parciales con esta revisión.
+**Acciones habilitadas:** override `--apply` verificado para **ambas políticas** de retiro, sin acortar sus plazos. Configuración activa y salida 0 no demuestran que haya habido borrados. El retiro real de completos se validó en la revisión anterior; faltan comprobar ventanas reales de 24 h/gracia semanal y borrado seguro de parciales con esta revisión. El Stop nativo no ejecuta ninguna de esas eliminaciones.
+
+## Native Seeding Stop
+
+**Dos responsabilidades independientes:** qBittorrent detiene el seeding después de una hora; el script decide cuándo es seguro retirar la entrada. La detención **no espera** la importación en Radarr/Sonarr ni la detección en Jellyfin. Si falta esa validación, el torrent puede permanecer **detenido**, con sus archivos conservados, sin seguir compartiendo indefinidamente.
+
+En qBittorrent **5.2.4**, configurar en **Settings → BitTorrent → Seeding Limits** el tiempo total de seeding en **60 minutos** y la acción **Stop torrent**. Equivalente en `app/setPreferences`:
+
+| Campo | Valor |
+| --- | --- |
+| `max_seeding_time_enabled` | `true` |
+| `max_seeding_time` | `60` |
+| `max_ratio_act` | `0` (`Stop`) |
+
+Releer `app/preferences` para comprobar los valores guardados. Mantener los límites alternativos de ratio e inactividad deshabilitados si se pretende detener por esta hora y no antes. **Nunca elegir Remove torrent ni Remove torrent and its content**: esa retirada eludiría las guardas del script. [Contrato de preferencias 5.2.4](https://github.com/qbittorrent/qBittorrent/blob/release-5.2.4/src/webui/api/appcontroller.cpp#L805-L835).
+
+El contador nativo suma tiempo con el contenido seleccionado completo y disponible, sin pausa, incluso sin peers; **no** cuenta sólo los segundos de subida efectiva. Pausas, colas o cliente apagado pueden extender el plazo de reloj desde el 100%. qBittorrent revisa sus límites aproximadamente cada **10 segundos**: no depende del timer de limpieza de seis horas ni garantiza una detención exacta al segundo 3600. [Contador utilizado](https://github.com/qbittorrent/qBittorrent/blob/release-5.2.4/src/base/bittorrent/torrentimpl.cpp#L930-L938), [semántica de libtorrent](https://www.libtorrent.org/reference-Torrent_Status.html#finished_duration) y [revisión nativa](https://github.com/qbittorrent/qBittorrent/blob/release-5.2.4/src/base/bittorrent/sessionimpl.cpp#L580-L587).
+
+Comprobar también los límites **efectivos**: un override del torrent o de su categoría puede sustituir el global, y los criterios de seeding enviados por Arr al añadir una descarga pueden fijar un tiempo propio. Los torrents forzados quedan fuera de los límites nativos; no usar **Force Start** para el flujo automático. Mantener **Remove Completed/Remove Failed OFF** en los gestores. La política Completed del script acepta `stoppedUP`, pero sigue exigiendo edad mínima, historial, hardlinks y Jellyfin antes de retirar sólo la entrada. [Herencia de límites](https://github.com/qbittorrent/qBittorrent/blob/release-5.2.4/src/base/bittorrent/torrentimpl.cpp#L1387-L1415), [exclusión de forzados y acción Stop](https://github.com/qbittorrent/qBittorrent/blob/release-5.2.4/src/base/bittorrent/sessionimpl.cpp#L2208-L2254).
 
 ## Rules and Safety Boundary
 
@@ -28,7 +46,7 @@ Ejemplos sintéticos; siempre sujetos a observaciones saludables y demás guarda
 | Sigue al 95% antes de siete días desde la detección ≥90% | Conservar aunque no avance. |
 | Tras siete días sigue incompleto y avanzó menos de cinco puntos en la ventana diaria | Puede ser candidato; no es una orden de borrado incondicional. |
 | Tras siete días avanzó del 90% al 95% en la última ventana | Conservar: el vencimiento no anula el progreso suficiente. |
-| Llega al 100%, incluso antes de vencer la semana | Aplicar sólo la regla Completed; nunca borrar como parcial. Si falta importar/detectar, conservar. |
+| Llega al 100%, incluso antes de vencer la semana | Aplicar sólo la regla Completed; nunca borrar como parcial. El Stop nativo tras una hora es independiente; si falta importar/detectar, conservar entrada y archivos detenidos. |
 
 Por encima del 95%, una descarga incompleta ya no puede sumar cinco puntos sin completar: vencida la semana y con una ventana válida, quedará como candidata si no terminó, salvo otra protección. La semana concede ese margen final; no promete conservación indefinida por pequeños avances.
 
@@ -36,7 +54,7 @@ Sólo categorías `movies` y `tv`. Excluir forzados, etiqueta **`cleanup-keep`**
 
 Los completos requieren eventos `downloadFolderImported` posteriores al alta actual y mismo dispositivo/inode/tamaño entre origen y biblioteca. Una coincidencia de título, un episodio importado o tamaño similar no valida el paquete. **Copias sin hardlink, historial purgado o importaciones no correlacionadas quedan para revisión**, aunque sean reproducibles. Jellyfin se comprueba por ruta exacta: `/data/media` en Debian corresponde a `/media` en el contenedor.
 
-Esta versión revisa qBittorrent **5.2.4** y rechaza otra versión hasta revisar su contrato. No habilitar simultáneamente el borrado nativo por seeding ni Remove Completed/Remove Failed de los gestores como otra política de limpieza. Mantener esas opciones OFF, sin cambiar límites o credenciales sólo para instalar el script.
+Esta versión revisa qBittorrent **5.2.4** y rechaza otra versión hasta revisar su contrato. El **Stop nativo** descrito arriba es compatible; el borrado nativo por seeding y Remove Completed/Remove Failed de los gestores deben seguir **OFF** para no introducir otra política de limpieza. Instalar el script no autoriza cambiar límites ni credenciales.
 
 ## Scheduling and Resource Use
 
@@ -44,7 +62,7 @@ El [timer](../config/torrent-cleanup/torrent-cleanup.timer) programa las 00/06/1
 
 - Sin torrents gestionados, termina sin consultar los gestores/Jellyfin ni probar conectividad exterior.
 - Límite de cinco acciones por corrida, diez minutos, 192 MiB y cuota CPU del 25%; prioridad reducida. Los límites no son una medición de consumo real.
-- El mínimo de una hora no implica retiro exacto al minuto 60: normalmente puede esperar otra revisión, hasta unas seis horas adicionales, más la tolerancia del timer/importación.
+- El mínimo de una hora de Completed no implica retiro exacto al minuto 60: normalmente puede esperar otra revisión, hasta unas seis horas adicionales, más la tolerancia del timer/importación. Esa espera no prolonga el seeding si el Stop nativo ya se cumplió.
 - La ventana diaria necesita una línea base persistente y normalmente cuatro intervalos saludables de seis horas. Nunca se deducen las 24 h anteriores de `added_on`, de un 0% visible ni de `last_activity`, que incluye subida.
 - Con tolerancias del timer no hay una muestra exactamente a las 24 h: se toma la muestra real más cercana **anterior o igual** al límite. La ventana puede abarcar hasta 31 h; se exige menos de cinco puntos en **todo** ese intervalo, sin interpolar ni prorratear. Es conservador: puede demorar un descarte, no inventar una falta de progreso dentro de las últimas 24 h.
 - Se guardan hasta 128 muestras por torrent. Muchas ejecuciones manuales muy frecuentes pueden desplazar el ancla y obligar a esperar más historia; nunca habilitan un descarte antes de tiempo.

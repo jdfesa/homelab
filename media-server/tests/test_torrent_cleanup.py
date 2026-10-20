@@ -277,6 +277,23 @@ class CleanupTests(unittest.TestCase):
         self.assertFalse(rec['healthy'])
         self.assertTrue(C.complete_eligible(torrent(True), rows(torrent(True)), NOW))
 
+    def test_stopped_complete_without_import_stays_stopped_and_is_not_removed(self):
+        r, q = self.runner(torrent(True, state='stoppedUP'), apply=True)
+        r.run()
+        self.assertEqual(q.data[H]['state'], 'stoppedUP')
+        self.assertFalse(any(call[2] != 'GET' for call in q.calls))
+        self.assertTrue(any(row.get('reason') == 'import_history_missing' for row in self.audit.records))
+        self.assertEqual(r.state['pending'], {})
+
+    def test_stopped_complete_can_be_retired_only_after_import_guard_without_files(self):
+        r, q = self.runner(torrent(True, state='stoppedUP'), apply=True)
+        r.imported = MagicMock()
+        r.run()
+        self.assertNotIn(H, q.data)
+        self.assertEqual(r.imported.call_count, 2)  # Initial decision and pre-removal revalidation.
+        writes = [call for call in q.calls if call[2] != 'GET']
+        self.assertEqual(writes, [('/api/v2/torrents/delete', None, 'POST', {'hashes': H, 'deleteFiles': 'false'})])
+
     def test_pause_gap_or_boot_preserves_grace_but_requires_fresh_daily_samples(self):
         rec, _ = self.track([.95]*5)
         for state, boot, health in (('stoppedDL', 'boot-one', True), ('downloading', 'boot-two', True),
@@ -893,11 +910,15 @@ class CleanupTests(unittest.TestCase):
         diagram = next(d for d in diagrams if 'torrent-cleanup.py' in d)
         for label in ('torrent-cleanup.timer: cada 6 h', 'check-media-storage', 'torrent-cleanup.service',
                       'state.json', 'audit.jsonl', 'Completos: 100% y al menos 1 h',
+                      'Límite nativo: 60 minutos de seeding', 'sin compartir',
                       '5 puntos en 24 h observadas', '90%: al menos 7 días',
                       'conservar archivos', 'borrar parciales', 'sin buscar reemplazo', 'revalidar', 'pending'):
             self.assertIn(label, diagram)
         for flow in ('cleanupTimer --> mountGuard', 'cleanupJob --> completeRule', 'cleanupJob --> slowRule',
-                     'completeRule --> entryOnly', 'slowRule --> partialGuards', 'blockRelease --> deletePartial'):
+                     'seedComplete --> seedLimit', 'seedLimit --> seedStopped',
+                     'completeRule -->|"Cumple todas las guardas"| entryOnly',
+                     'completeRule -->|"Biblioteca sin validar; no reanudar"| seedStopped',
+                     'slowRule --> partialGuards', 'blockRelease --> deletePartial'):
             self.assertIn(flow, diagram)
         for private in ('install-current-site', 'upgrade-current-site', 'activate-current-site'):
             self.assertNotIn(private, diagram)

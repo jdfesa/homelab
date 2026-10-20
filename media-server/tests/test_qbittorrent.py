@@ -1,12 +1,14 @@
 """Pure downloader contract checks; no Docker, SSH, HTTP or disk provisioning."""
 import copy
 import importlib.util
+import io
 import json
 from pathlib import Path
 import subprocess
 import struct
 import sys
 import unittest
+from unittest.mock import patch
 
 MODULE = Path(__file__).resolve().parents[1]
 SCRIPT = MODULE / 'scripts/deploy-qbittorrent.py'
@@ -65,6 +67,90 @@ class QbittorrentContract(unittest.TestCase):
             self.assertIn(setting, seed)
         self.assertNotIn('Password', seed)
         self.assertNotIn('/data/media', seed)
+
+    def test_seed_stops_after_one_hour_without_native_removal(self):
+        seed = DEPLOY.initial_configuration('10.0.0.10')
+        for setting in (r'Session\GlobalMaxRatio=-1',
+                        r'Session\GlobalMaxSeedingMinutes=60',
+                        r'Session\GlobalMaxInactiveSeedingMinutes=-1',
+                        r'Session\ShareLimitAction=Stop'):
+            self.assertIn(setting, seed)
+        self.assertNotIn('ShareLimitAction=Remove', seed)
+
+    def verify_with_preferences(self, changes=None):
+        """Exercise the actual login/preferences gate without HTTP or real secrets."""
+        prefs = {
+            'upnp': False, 'web_ui_upnp': False, 'bypass_local_auth': False,
+            'bypass_auth_subnet_whitelist_enabled': False,
+            'web_ui_csrf_protection_enabled': True,
+            'web_ui_host_header_validation_enabled': True,
+            'web_ui_clickjacking_protection_enabled': True,
+            'temp_path_enabled': True, 'save_path': '/data/downloads/',
+            'temp_path': '/data/downloads/incomplete/',
+            'max_ratio_enabled': False, 'max_ratio': -1,
+            'max_seeding_time_enabled': True, 'max_seeding_time': 60,
+            'max_inactive_seeding_time_enabled': False, 'max_inactive_seeding_time': -1,
+            'max_ratio_act': 0,
+        }
+        prefs.update(changes or {})
+
+        class Response:
+            def __init__(self, data, status=200):
+                self.status, self.data = status, data
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def read(self):
+                return self.data
+
+        class Opener:
+            authenticated = False
+
+            def open(self, request, timeout):
+                path = request.full_url.split('/api/v2/', 1)[1]
+                if path == 'app/preferences':
+                    if not self.authenticated:
+                        error = DEPLOY.urllib.error.HTTPError(request.full_url, 403, 'Forbidden', {}, io.BytesIO())
+                        error.close()
+                        raise error
+                    return Response(json.dumps(prefs).encode())
+                if path == 'auth/login':
+                    self.authenticated = True
+                    return Response(b'', 204)
+                if path == 'app/version':
+                    return Response(b'v5.2.4')
+                if path == 'torrents/info':
+                    return Response(b'[]')
+                if path == 'torrents/categories':
+                    return Response(json.dumps({
+                        name: {'savePath': '/data/downloads/' + name}
+                        for name in ('movies', 'tv')}).encode())
+                if path in ('torrents/createCategory', 'auth/logout'):
+                    return Response(b'')
+                raise AssertionError('Unexpected fixture request')
+
+        with patch.object(DEPLOY.urllib.request, 'build_opener', return_value=Opener()):
+            return DEPLOY.verify_api('10.0.0.10', 'synthetic-test-only')
+
+    def test_api_verifies_native_stop_independent_of_library(self):
+        result = self.verify_with_preferences()
+        verified = result['settings_verified']
+        self.assertEqual(verified['max_seeding_time'], 60)
+        self.assertTrue(verified['max_seeding_time_enabled'])
+        self.assertEqual(verified['max_ratio_act'], 0)
+
+    def test_api_rejects_missing_hour_earlier_triggers_or_native_removal(self):
+        for change in (
+                {'max_seeding_time_enabled': False}, {'max_seeding_time': 0},
+                {'max_seeding_time': -1}, {'max_ratio_enabled': True}, {'max_ratio': 1},
+                {'max_inactive_seeding_time_enabled': True}, {'max_inactive_seeding_time': 30},
+                {'max_ratio_act': 1}, {'max_ratio_act': 2}, {'max_ratio_act': 3}):
+            with self.subTest(change=change), self.assertRaisesRegex(RuntimeError, 'seeding policy'):
+                self.verify_with_preferences(change)
 
     def test_refuses_implicit_apply(self):
         result = subprocess.run([sys.executable, str(SCRIPT), '--compose-file', 'missing', '--env-file', 'missing'],

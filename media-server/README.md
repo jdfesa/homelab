@@ -80,10 +80,13 @@ La [traducción asistida por el skill](docs/bazarr.md#translate-english-exports-
 
 ### Periodic Maintenance
 
-Un único `torrent-cleanup.py` evalúa dos reglas mediante una unidad systemd finita. No es otro contenedor ni un proceso Python residente. El timer está habilitado con acciones reales; conserva las muestras entre revisiones y sólo actúa cuando se cumplen los plazos y las guardas.
+qBittorrent detiene el seeding con su límite nativo, independientemente de la biblioteca. Por separado, un único `torrent-cleanup.py` evalúa dos reglas de retiro mediante una unidad systemd finita. No es otro contenedor ni un proceso Python residente. El timer está habilitado con acciones reales; conserva las muestras entre revisiones y sólo retira cuando se cumplen los plazos y las guardas.
 
 ```mermaid
 flowchart TB
+    seedComplete["qBittorrent: descarga al 100%"]
+    seedLimit["Límite nativo: 60 minutos de seeding"]
+    seedStopped["Stop: sin compartir; entrada y archivos conservados"]
     cleanupTimer["torrent-cleanup.timer: cada 6 h"]
     mountGuard["check-media-storage: UUID, ext4 y montaje RW"]
     blocked["No iniciar limpieza; revisar journal"]
@@ -103,6 +106,8 @@ Detener y revalidar progreso y protecciones`"]
     deletePartial["API qBit: retirar entrada y borrar parciales"]
     retain["No es candidato: conservar y seguir observando"]
     audit[("audit.jsonl: motivos, intención y resultado o pending")]
+    seedComplete --> seedLimit
+    seedLimit --> seedStopped
     cleanupTimer --> mountGuard
     mountGuard -->|"Montaje correcto"| cleanupJob
     mountGuard -->|"Falla la guarda"| blocked
@@ -111,7 +116,8 @@ Detener y revalidar progreso y protecciones`"]
     cleanupJob --> completeRule
     cleanupJob --> slowRule
     cleanupJob -->|"Sin historia suficiente, gracia o exclusiones"| retain
-    completeRule --> entryOnly
+    completeRule -->|"Cumple todas las guardas"| entryOnly
+    completeRule -->|"Biblioteca sin validar; no reanudar"| seedStopped
     slowRule --> partialGuards
     partialGuards --> blockRelease
     blockRelease --> deletePartial
@@ -121,7 +127,7 @@ Detener y revalidar progreso y protecciones`"]
     retain -->|"Registrar por qué se conserva"| audit
 ```
 
-Las flechas describen el **flujo configurado**, no que todos los casos hayan sucedido. Arranque/migración y activación están comprobados; las ventanas reales de 24 h/gracia semanal y el borrado de parciales aún requieren validación. La biblioteca nunca es objetivo del borrado. Una revalidación fallida puede dejar una acción `pending` para revisión, sin reintento automático. [Reglas, excepciones y auditoría: guía canónica](docs/torrent-cleanup.md).
+Las flechas describen el **flujo configurado**, no que todos los casos hayan sucedido. El Stop nativo y la ejecución programada están comprobados; las ventanas reales de 24 h/gracia semanal y el borrado de parciales aún requieren validación. La biblioteca nunca es objetivo del borrado. Una revalidación fallida puede dejar una acción `pending` para revisión, sin reintento automático. [Reglas, excepciones y auditoría: guía canónica](docs/torrent-cleanup.md).
 
 | Recurso | Función en operación |
 | --- | --- |

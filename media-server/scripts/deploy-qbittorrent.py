@@ -75,6 +75,10 @@ Session\\TempPath=/data/downloads/incomplete/
 Session\\TempPathEnabled=true
 Session\\Port=6881
 Session\\UseCategoryPathsInManualMode=true
+Session\\GlobalMaxRatio=-1
+Session\\GlobalMaxSeedingMinutes=60
+Session\\GlobalMaxInactiveSeedingMinutes=-1
+Session\\ShareLimitAction=Stop
 
 [LegalNotice]
 Accepted=true
@@ -145,9 +149,15 @@ def verify_api(address, password):
         expected = {'upnp': False, 'web_ui_upnp': False, 'bypass_local_auth': False,
                     'bypass_auth_subnet_whitelist_enabled': False, 'web_ui_csrf_protection_enabled': True,
                     'web_ui_host_header_validation_enabled': True, 'web_ui_clickjacking_protection_enabled': True,
-                    'temp_path_enabled': True}
+                    'temp_path_enabled': True,
+                    # Stop seeding independently of guarded library import/removal.
+                    # No ratio/inactivity trigger may stop a new seed before its hour.
+                    'max_ratio_enabled': False, 'max_ratio': -1,
+                    'max_seeding_time_enabled': True, 'max_seeding_time': 60,
+                    'max_inactive_seeding_time_enabled': False, 'max_inactive_seeding_time': -1,
+                    'max_ratio_act': 0}
         if any(prefs.get(k) != v for k, v in expected.items()):
-            raise RuntimeError('Effective API settings differ from reviewed router/authentication policy')
+            raise RuntimeError('Effective API settings differ from reviewed router/authentication/seeding policy')
         for key, path in {'save_path': '/data/downloads', 'temp_path': '/data/downloads/incomplete'}.items():
             if prefs.get(key, '').rstrip('/') != path:
                 raise RuntimeError('Effective download path differs from HDD contract')
