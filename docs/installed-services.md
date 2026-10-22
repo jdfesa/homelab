@@ -1,6 +1,6 @@
 # Installed Services
 
-**Observed:** Host 2026-10-14 / Media VM 2026-10-15 / DSM RAM owner-confirmed 2026-10-19 / Homepage LXC 2026-10-19 · **Scope:** Host y huéspedes; Homepage verificado por consola y SSH a Proxmox con `pct exec`, sin repetir el inventario completo del host.
+**Observed:** Host 2026-10-14 / Media VM 2026-10-15 / DSM RAM owner-confirmed 2026-10-19 and owner-supplied screenshots 2026-10-22 / Homepage LXC 2026-10-19 · **Scope:** Host y huéspedes; Homepage verificado por consola y SSH a Proxmox con `pct exec`, sin repetir el inventario completo del host.
 
 ## Guest Inventory
 
@@ -25,7 +25,8 @@ Entrada del huésped: [módulo DSM](../dsm/README.md). RAM actual de 3 GiB y fun
 - Disco de arranque SATA con `cache=writeback`; configuración observada, no elección validada aquí.
 - Disco físico completo asignado por ruta estable `by-id`; su serial se omitió de la documentación.
 - QEMU guest agent no configurado.
-- Pendientes: versión real de DSM, modelo emulado/loader, paquetes, shares, usuarios, uso del volumen y backups internos.
+- La [referencia de instalación DSM](../dsm/docs/installation-guide.md) registra versión actual y proyecto del loader a partir de capturas y confirmación del propietario, sin repetir la instalación.
+- Pendientes: paquetes, shares, usuarios, uso del volumen y backups internos.
 
 El nombre de una VM no prueba qué aplicaciones contiene. No se accedió a DSM con credenciales internas ni se leyó contenido personal del HDD.
 
