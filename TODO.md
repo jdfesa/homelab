@@ -1,8 +1,16 @@
 # Future Services
 
-**Status:** Planned, not deployed · **Updated:** 2026-10-20.
+**Status:** Planned and research candidates, not deployed · **Updated:** 2026-10-22.
 
-Pendientes transversales de servicios futuros. No forman parte del inventario instalado; los pendientes de servicios existentes permanecen en su módulo.
+Pendientes transversales de servicios futuros y opciones a investigar. No forman parte del inventario instalado; investigar una opción no implica aprobar su instalación. Los pendientes de servicios existentes permanecen en su módulo.
+
+## Research Candidates
+
+- [ ] **Karakeep — research only:** evaluar si organizar enlaces, artículos y notas con búsqueda por contenido y archivado aporta valor frente a las herramientas actuales.
+  - Revisar funcionamiento sin IA ni APIs de pago, consumo de recursos y mantenimiento antes de decidir su adopción. Sin instalación ni asignación de huésped aprobadas.
+
+- [ ] **HomeBox — research only:** evaluar si un inventario doméstico con ubicaciones, fotos, documentos y garantías aporta valor para organizar pertenencias y repuestos.
+  - Revisar esfuerzo de carga y mantenimiento del inventario, recursos y opciones de exportación y backup antes de decidir su adopción. Sin instalación ni asignación de huésped aprobadas.
 
 ## File Synchronization
 
