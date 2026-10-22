@@ -1,10 +1,16 @@
 # Not Planned
 
-**Status:** Excluded under current conditions · **Updated:** 2026-10-20.
+**Status:** Excluded under current conditions · **Updated:** 2026-10-22.
 
 Servicios descartados para la etapa y el hardware actuales, no prohibiciones permanentes. Este archivo es la referencia canónica de exclusiones; [TODO.md](TODO.md) contiene los servicios seleccionados para implementación futura.
 
 No proponer de nuevo estas incorporaciones mientras se mantengan sus motivos de exclusión. Reevaluarlas sólo ante una solicitud explícita o un cambio relevante en las condiciones indicadas; una reevaluación no autoriza el despliegue.
+
+## Monitoring
+
+| Service | Decision and reason | Reconsider when |
+| --- | --- | --- |
+| Uptime Kuma | No implementar por ahora: un solo nodo Proxmox, sin UPS y sin presupuesto sostenible para infraestructura adicional. Un monitor en el mismo nodo comparte sus fallos; la exclusión responde a utilidad y coste actuales, no a una imposibilidad técnica de monitorizar aplicaciones en un único nodo. | Si cambia la necesidad o existe presupuesto sostenible para protección eléctrica y monitorización independiente del host. |
 
 ## Photos
 
